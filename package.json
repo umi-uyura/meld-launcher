@@ -1,0 +1,34 @@
+{
+  "name": "meld-launcher",
+  "version": "0.0.1",
+  "description": "Select target by drag & drop and launch Meld",
+  "main": "index.html",
+  "scripts": {
+    "start": "nw",
+    "build": "jsx ./src ./build --extension jsx",
+    "watch": "jsx --watch ./src ./build --extension jsx",
+    "package": "nwbuild -p osx64 .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "meld",
+    "diff",
+    "react",
+    "nw.js",
+    "node-webkit"
+  ],
+  "author": "Umi Uyura",
+  "license": "MIT",
+  "dependencies": {
+    "nw": "^0.12.1",
+    "react": "^0.13.2"
+  },
+  "devDependencies": {
+    "node-webkit-builder": "^1.0.11",
+    "react-tools": "^0.13.2"
+  },
+  "window": {
+    "title": "Meld Launcher",
+    "toolbar": false
+  }
+}

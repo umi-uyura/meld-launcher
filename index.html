@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Meld Launcher</title>
+    <script>
+     var gui = require('nw.gui');
+    </script>
+    <script>
+     var path = './';
+     var fs = require('fs');
+
+     fs.watch(path, { recursive: true }, function() {
+       if (location)
+         location.reload();
+     });
+    </script>
+    <script src="node_modules/react/dist/react.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="build/dndInput.js"></script>
+    <script src="build/index.js"></script>
+  </body>
+</html>
