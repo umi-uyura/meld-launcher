@@ -20,6 +20,9 @@ var DnDInput = React.createClass({displayName: "DnDInput",
       this.setState({ path: e.dataTransfer.files[0].path });
     }
   },
+  setPath: function(path) {
+    this.setState({ path: path });
+  },
   render: function() {
     return (
         React.createElement("input", {type: "text", size: "100", value: this.state.path, onDragOver: this.doDragOver, onDragLeave: this.doDragLeave, onDrop: this.doDrop, readOnly: true})
