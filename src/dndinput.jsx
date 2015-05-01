@@ -19,8 +19,6 @@ var DnDInput = React.createClass({
     if (0 < e.dataTransfer.files.length) {
       this.setState({ path: e.dataTransfer.files[0].path });
     }
-
-    return false;
   },
   render: function() {
     return (
