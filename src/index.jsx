@@ -1,7 +1,8 @@
 'use strict';
 
 (function() {
-  var exec = require('child_process').exec;
+  var spawn = require('child_process').spawn;
+
   var App = React.createClass({
     doClick: function() {
       var path1 = this.refs.target1.state.path;
@@ -11,14 +12,15 @@
         return;
       }
 
-      exec('meld ' + this.refs.target1.state.path + ' ' + this.refs.target2.state.path,
-           function(error, stdout, stderr) {
-             if (error) {
-               alert(error);
-             } else {
-               process.exit();
-             }
-           });
+      var meld_exec = spawn('meld',
+                            [this.refs.target1.state.path, this.refs.target2.state.path]);
+      meld_exec.on('exit', function(code) {
+        if (0 !== code) {
+          alert('Error: ' + code);
+        } else {
+          process.exit();
+        }
+      });
     },
     render: function() {
       return (
