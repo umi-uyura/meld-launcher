@@ -22,7 +22,7 @@ var DnDInput = React.createClass({
   },
   render: function() {
     return (
-      <input type="text" size='100' value={this.state.path} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} />
+        <input type="text" size='100' value={this.state.path} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} readOnly />
     )
   }
 });
