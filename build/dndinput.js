@@ -8,7 +8,6 @@ var DnDInput = React.createClass({displayName: "DnDInput",
     };
   },
   doDragOver: function(e) {
-    e.preventDefault();
     this.setState({ hover: true });
   },
   doDragLeave: function() {
