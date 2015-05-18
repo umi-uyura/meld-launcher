@@ -59,7 +59,7 @@
           <DnDInput ref='target2' />
           <button onClick={this.doClick}>Compare</button>
         </div>
-      )
+      );
     }
   });
 

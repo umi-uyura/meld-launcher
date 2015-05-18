@@ -48,6 +48,6 @@ var DnDArea = React.createClass({
     var path = this.state.path;
     return (
         <div style={style} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} />
-    )
+    );
   }
 });
