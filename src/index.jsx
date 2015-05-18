@@ -2,6 +2,10 @@
 
 (function() {
   var spawn = require('child_process').spawn;
+  var React = require('react');
+
+  var DnDInput = require('./dndinput.jsx');
+  var DnDArea = require('./dndarea.jsx');
 
   var App = React.createClass({
     onReceiveDrop1: function(e) {

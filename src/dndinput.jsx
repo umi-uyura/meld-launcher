@@ -1,5 +1,6 @@
 'use strict';
 
+var React = require('react');
 var DnDInput = React.createClass({
   getInitialState: function() {
     return {
@@ -29,3 +30,5 @@ var DnDInput = React.createClass({
     );
   }
 });
+
+module.exports = DnDInput;

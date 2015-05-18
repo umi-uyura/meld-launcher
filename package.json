@@ -5,8 +5,9 @@
   "main": "index.html",
   "scripts": {
     "start": "nw",
-    "build": "jsx ./src ./build --extension jsx",
-    "watch": "jsx --watch ./src ./build --extension jsx",
+    "browserify": "browserify build/index.js -o build/bundle.js",
+    "reactify": "browserify -t reactify src/index.jsx -o build/bundle.js",
+    "watchify": "watchify -t reactify src/index.jsx -o build/bundle.js",
     "package": "nwbuild -p osx64 .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,8 +25,10 @@
     "react": "^0.13.2"
   },
   "devDependencies": {
+    "browserify": "^10.2.0",
     "node-webkit-builder": "^1.0.11",
-    "react-tools": "^0.13.2"
+    "reactify": "^1.1.1",
+    "watchify": "^3.2.1"
   },
   "window": {
     "title": "Meld Launcher",

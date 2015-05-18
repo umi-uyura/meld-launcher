@@ -1,5 +1,6 @@
 'use strict';
 
+var React = require('react');
 var DnDArea = React.createClass({
   propTypes: {
     receiveDrop: React.PropTypes.func.isRequired
@@ -51,3 +52,5 @@ var DnDArea = React.createClass({
     );
   }
 });
+
+module.exports = DnDArea;
