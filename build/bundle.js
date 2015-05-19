@@ -28232,7 +28232,7 @@ var DnDInput = React.createClass({displayName: "DnDInput",
   },
   render: function() {
     return (
-        React.createElement(TextField, {hintText: "path", size: "100", value: this.state.path, onDragOver: this.doDragOver, onDragLeave: this.doDragLeave, onDrop: this.doDrop, readOnly: true})
+        React.createElement(TextField, {hintText: this.props.hintText, value: this.state.path, onDragOver: this.doDragOver, onDragLeave: this.doDragLeave, onDrop: this.doDrop, readOnly: true})
     );
   }
 });
@@ -28301,7 +28301,6 @@ module.exports = DnDInput;
       meld_exec.stderr.on('data', function(data) {
         alert(data);
       });
-
       meld_exec.on('exit', function(code) {
         if (0 !== code) {
           alert('Error: ' + code);
@@ -28315,8 +28314,8 @@ module.exports = DnDInput;
         React.createElement("div", null, 
           React.createElement(DnDArea, {ref: "area1", receiveDrop: this.onReceiveDrop1}), 
           React.createElement(DnDArea, {ref: "area2", receiveDrop: this.onReceiveDrop2}), React.createElement("br", null), 
-          React.createElement(DnDInput, {ref: "target1"}), React.createElement("br", null), 
-          React.createElement(DnDInput, {ref: "target2"}), React.createElement("br", null), 
+          React.createElement(DnDInput, {ref: "target1", hintText: "Path 1"}), React.createElement("br", null), 
+          React.createElement(DnDInput, {ref: "target2", hintText: "Path 2"}), React.createElement("br", null), 
           React.createElement(RaisedButton, {onClick: this.doClick, label: "Compare"})
         )
       );

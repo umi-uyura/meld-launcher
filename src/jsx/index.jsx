@@ -71,8 +71,8 @@
         <div>
           <DnDArea ref='area1' receiveDrop={this.onReceiveDrop1} />
           <DnDArea ref='area2' receiveDrop={this.onReceiveDrop2} /><br />
-          <DnDInput ref='target1' /><br />
-          <DnDInput ref='target2' /><br />
+          <DnDInput ref='target1' hintText="Path 1" /><br />
+          <DnDInput ref='target2' hintText="Path 2" /><br />
           <RaisedButton onClick={this.doClick} label="Compare" />
         </div>
       );
