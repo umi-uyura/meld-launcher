@@ -1,6 +1,9 @@
 'use strict';
 
 var React = require('react');
+var mui = require('material-ui');
+var TextField = mui.TextField;
+
 var DnDInput = React.createClass({
   getInitialState: function() {
     return {
@@ -26,7 +29,7 @@ var DnDInput = React.createClass({
   },
   render: function() {
     return (
-        <input type="text" size='100' value={this.state.path} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} readOnly />
+        <TextField hintText="path" size='100' value={this.state.path} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} readOnly />
     );
   }
 });
