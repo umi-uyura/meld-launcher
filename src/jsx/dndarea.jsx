@@ -33,22 +33,22 @@ var DnDArea = React.createClass({
       leave: {
         display: 'inline-block',
         border: '10px dashed #ccc',
-        width: '100px',
-        height: '100px',
-        margin: '20px auto'
+        width: '250px',
+        height: '120px',
+        margin: '10px 10px'
       },
       hover: {
         display: 'inline-block',
         border: '10px dashed #333',
-        width: '100px',
-        height: '100px',
-        margin: '20px auto'
+        width: '250px',
+        height: '120px',
+        margin: '10px 10px'
       }
     };
     var style = this.state.hover ? styles.hover : styles.leave;
     var path = this.state.path;
     return (
-        <div style={style} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} />
+      <div style={style} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} />
     );
   }
 });

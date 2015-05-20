@@ -29,7 +29,7 @@ var DnDInput = React.createClass({
   },
   render: function() {
     return (
-        <TextField hintText={this.props.hintText} value={this.state.path} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} readOnly />
+        <TextField hintText={this.props.hintText} floatingLabelText={this.props.floatingLabelText} value={this.state.path} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} readOnly />
     );
   }
 });

@@ -35,6 +35,8 @@
   },
   "window": {
     "title": "Meld Launcher",
-    "toolbar": false
+    "toolbar": false,
+    "width": 600,
+    "height": 400
   }
 }
