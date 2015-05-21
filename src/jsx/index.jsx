@@ -3,7 +3,7 @@
 (function() {
   var exec = window.require('child_process').exec;
   var React = require('react');
-  var injectTapEventPlugin = require("react-tap-event-plugin");
+  var injectTapEventPlugin = require('react-tap-event-plugin');
   injectTapEventPlugin();
 
   var mui = require('material-ui');
@@ -73,10 +73,10 @@
         <div>
           <DnDArea ref='area1' receiveDrop={this.onReceiveDrop1} />
           <DnDArea ref='area2' receiveDrop={this.onReceiveDrop2} /><br />
-          <DnDInput ref='target1' hintText="Path 1" floatingLabelText="Path 1" /><br />
-          <DnDInput ref='target2' hintText="Path 2" floatingLabelText="Path 2" /><br />
+          <DnDInput ref='target1' hintText='Path 1' floatingLabelText='Path 1' /><br />
+          <DnDInput ref='target2' hintText='Path 2' floatingLabelText='Path 2' /><br />
           <div id="controller">
-            <RaisedButton id="compareButton" onClick={this.doClick} label="Compare" />
+            <RaisedButton id='compareButton' onClick={this.doClick} label='Compare' />
           </div>
           <Snackbar ref="targetnoneDlg" message={this.state.snackMessage} />
         </div>
