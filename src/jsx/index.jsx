@@ -9,6 +9,7 @@
   var mui = require('material-ui');
   var RaisedButton = mui.RaisedButton;
   var Snackbar = mui.Snackbar;
+  var Dialog = mui.Dialog;
 
   var DnDInput = require('./dndinput.jsx');
   var DnDArea = require('./dndarea.jsx');
@@ -16,7 +17,8 @@
   var App = React.createClass({
     getInitialState: function() {
       return {
-        snackMessage: '初期メッセージ'
+        snackMessage: '',
+        dialogMessage: ''
       };
     },
     onReceiveDrop1: function(e) {
@@ -53,16 +55,15 @@
 
       if (0 === path1.length || 0 === path2.length) {
         this.setState({ snackMessage: '比較するファイル/フォルダを指定してください。'});
-        this.refs.targetnoneDlg.show();
+        this.refs.snakbar.show();
         return;
       }
 
       var self = this;
       exec('meld ' + path1 + ' ' + path2, function(error, stdout, stderr) {
         if (error !== null) {
-          //self.setState({ snackMessage: error });
-          //self.refs.targetnoneDlg.show();
-          alert(error);
+          self.setState({ dialogMessage: error.message + '(' + error.code + ')' });
+          self.refs.alertDlg.show();
         } else {
           window.process.exit();
         }
@@ -78,7 +79,10 @@
           <div id="controller">
             <RaisedButton id='compareButton' onClick={this.doClick} label='Compare' />
           </div>
-          <Snackbar ref="targetnoneDlg" message={this.state.snackMessage} />
+          <Snackbar ref='snakbar' message={this.state.snackMessage} />
+          <Dialog ref='alertDlg' title='Meld Launcher' actions={[{ text: 'OK'}]} modal={true}>
+            {this.state.dialogMessage}
+          </Dialog>
         </div>
       );
     }

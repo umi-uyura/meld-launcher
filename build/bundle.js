@@ -28241,15 +28241,15 @@ module.exports = DnDInput;
 'use strict';
 
 (function() {
-  var spawn = window.require('child_process').spawn;
   var exec = window.require('child_process').exec;
   var React = require('react');
-  var injectTapEventPlugin = require("react-tap-event-plugin");
+  var injectTapEventPlugin = require('react-tap-event-plugin');
   injectTapEventPlugin();
 
   var mui = require('material-ui');
   var RaisedButton = mui.RaisedButton;
   var Snackbar = mui.Snackbar;
+  var Dialog = mui.Dialog;
 
   var DnDInput = require('./dndinput.jsx');
   var DnDArea = require('./dndarea.jsx');
@@ -28257,7 +28257,8 @@ module.exports = DnDInput;
   var App = React.createClass({displayName: "App",
     getInitialState: function() {
       return {
-        snackMessage: '初期メッセージ'
+        snackMessage: '',
+        dialogMessage: ''
       };
     },
     onReceiveDrop1: function(e) {
@@ -28294,15 +28295,15 @@ module.exports = DnDInput;
 
       if (0 === path1.length || 0 === path2.length) {
         this.setState({ snackMessage: '比較するファイル/フォルダを指定してください。'});
-        this.refs.targetnoneDlg.show();
+        this.refs.snakbar.show();
         return;
       }
 
       var self = this;
       exec('meld ' + path1 + ' ' + path2, function(error, stdout, stderr) {
         if (error !== null) {
-          self.setState({ snackMessage: error });
-          self.refs.targetnoneDlg.show();
+          self.setState({ dialogMessage: error.message + '(' + error.code + ')' });
+          self.refs.alertDlg.show();
         } else {
           window.process.exit();
         }
@@ -28318,7 +28319,10 @@ module.exports = DnDInput;
           React.createElement("div", {id: "controller"}, 
             React.createElement(RaisedButton, {id: "compareButton", onClick: this.doClick, label: "Compare"})
           ), 
-          React.createElement(Snackbar, {ref: "targetnoneDlg", message: this.state.snackMessage})
+          React.createElement(Snackbar, {ref: "snakbar", message: this.state.snackMessage}), 
+          React.createElement(Dialog, {ref: "alertDlg", title: "Meld Launcher", actions: [{ text: 'OK'}], modal: true}, 
+            this.state.dialogMessage
+          )
         )
       );
     }
