@@ -21,6 +21,7 @@
   "author": "Umi Uyura",
   "license": "MIT",
   "dependencies": {
+    "classnames": "^2.1.1",
     "less": "^2.5.0",
     "material-ui": "^0.7.2",
     "nw": "^0.12.1",
@@ -37,6 +38,6 @@
     "title": "Meld Launcher",
     "toolbar": false,
     "width": 600,
-    "height": 400
+    "height": 480
   }
 }

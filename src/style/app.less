@@ -1,16 +1,58 @@
+body {
+  background: @orange-A100;
+}
+
 #app {
   padding: 10px;
   text-align: center;
 }
 
+.dndarea-wrap {
+  display: inline-block;
+  width: 40%;
+  height: 150px;
+  margin: 20px 10px 0px 10px;
+}
+
+.dndarea {
+  background: @orange-A200;
+  height: 140px;
+}
+
+.dndarea.drag {
+  background: @orange-A400;
+}
+
+.dndarea-content {
+  height: 100%;
+  line-height: 120px;
+}
+
 .mui-text-field {
-  width: 560px !important;
+  width: 90% !important;
+}
+
+.mui-text-field-floating-label {
+  color: @orange-A700 !important;
+}
+
+.mui-text-field-underline {
+  border-color: @orange-A200;
+}
+
+.mui-text-field.mui-is-focused .mui-text-field-focus-underline {
+  border-color: @orange-A700;
 }
 
 #controller {
   margin-top: 34px;
 }
 
-.mui-raised-button {
-  width: 80%;
+.compare-button {
+  width: 90%;
+}
+
+.compare-button button {
+  background-color: @light-blue-A200 !important;
+  height: 100px;
 }

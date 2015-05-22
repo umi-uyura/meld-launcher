@@ -1,6 +1,11 @@
 'use strict';
 
 var React = require('react');
+var mui = require('material-ui');
+var ClassNames = require('classnames');
+
+var Paper = mui.Paper;
+
 var DnDArea = React.createClass({
   propTypes: {
     receiveDrop: React.PropTypes.func.isRequired
@@ -29,26 +34,16 @@ var DnDArea = React.createClass({
     }
   },
   render: function() {
-    var styles = {
-      leave: {
-        display: 'inline-block',
-        border: '10px dashed #ccc',
-        width: '250px',
-        height: '120px',
-        margin: '10px 10px'
-      },
-      hover: {
-        display: 'inline-block',
-        border: '10px dashed #333',
-        width: '250px',
-        height: '120px',
-        margin: '10px 10px'
-      }
-    };
-    var style = this.state.hover ? styles.hover : styles.leave;
-    var path = this.state.path;
+    var zDepth = this.state.hover ? 5 : 3;
+    var classArea = ClassNames('dndarea', { 'drag': this.state.hover });
     return (
-      <div style={style} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} />
+      <div className="dndarea-wrap">
+        <span>{this.props.title}</span>
+        <Paper className={classArea}
+               zDepth={zDepth} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop}>
+          <p className="dndarea-content">{this.props.children}</p>
+        </Paper>
+      </div>
     );
   }
 });

@@ -72,12 +72,12 @@
     render: function() {
       return (
         <div>
-          <DnDArea ref='area1' receiveDrop={this.onReceiveDrop1} />
-          <DnDArea ref='area2' receiveDrop={this.onReceiveDrop2} /><br />
-          <DnDInput ref='target1' hintText='Path 1' floatingLabelText='Path 1' /><br />
-          <DnDInput ref='target2' hintText='Path 2' floatingLabelText='Path 2' /><br />
+          <DnDInput ref='target1' hintText='Path 1' floatingLabelText='Target 1' />
+          <DnDInput ref='target2' hintText='Path 2' floatingLabelText='Target 2' />
+          <DnDArea ref='area1' title="Target 1" receiveDrop={this.onReceiveDrop1}>Drop Here!</DnDArea>
+          <DnDArea ref='area2' title="Target 2" receiveDrop={this.onReceiveDrop2}>Drop Here!</DnDArea>
           <div id="controller">
-            <RaisedButton id='compareButton' onClick={this.doClick} label='Compare' />
+            <RaisedButton className="compare-button" onClick={this.doClick} label='Compare' />
           </div>
           <Snackbar ref='snakbar' message={this.state.snackMessage} />
           <Dialog ref='alertDlg' title='Meld Launcher' actions={[{ text: 'OK'}]} modal={true}>
