@@ -40,7 +40,7 @@ var DnDArea = React.createClass({
       <div className="dndarea-wrap">
         <span>{this.props.title}</span>
         <Paper className={classArea}
-               zDepth={zDepth} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop}>
+               zDepth={zDepth} circle={true} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop}>
           <p className="dndarea-content">{this.props.children}</p>
         </Paper>
       </div>

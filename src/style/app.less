@@ -11,7 +11,7 @@ body {
   display: inline-block;
   width: 40%;
   height: 150px;
-  margin: 20px 10px 0px 10px;
+  margin: 20px 10px 10px 10px;
 }
 
 .dndarea {
@@ -23,9 +23,17 @@ body {
   background: @orange-A400;
 }
 
+.dndarea-wrap > span {
+  color: @orange-A700;
+  font-size: 120%;
+  font-weight: bold;
+}
+
 .dndarea-content {
   height: 100%;
-  line-height: 120px;
+  line-height: 130px;
+  font-size: 200%;
+  font-weight: bold;
 }
 
 .mui-text-field {
@@ -53,6 +61,5 @@ body {
 }
 
 .compare-button button {
-  background-color: @light-blue-A200 !important;
-  height: 100px;
+  background-color: @indigo-A100 !important;
 }
