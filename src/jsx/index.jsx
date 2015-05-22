@@ -60,7 +60,7 @@
       }
 
       var self = this;
-      exec('meld ' + path1 + ' ' + path2, function(error, stdout, stderr) {
+      exec('/usr/local/bin/meld ' + path1 + ' ' + path2, function(error, stdout, stderr) {
         if (error !== null) {
           self.setState({ dialogMessage: error.message + '(' + error.code + ')' });
           self.refs.alertDlg.show();
