@@ -8,6 +8,7 @@
     "browserify": "browserify build/index.js -o build/bundle.js",
     "reactify": "browserify -t reactify src/jsx/index.jsx -o build/bundle.js",
     "watchify": "watchify -t reactify src/jsx/index.jsx -o build/bundle.js -v",
+    "lessc": "lessc src/style/bundle.less build/bundle.css",
     "package": "nwbuild -p osx64 -v 0.12.0 .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,7 +23,7 @@
   "license": "MIT",
   "dependencies": {
     "classnames": "^2.1.1",
-    "less": "^2.5.0",
+    "less": "^2.5.1",
     "material-ui": "^0.7.2",
     "nw": "^0.12.1",
     "react": "^0.13.2",

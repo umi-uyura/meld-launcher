@@ -49,7 +49,7 @@ process.nextTick = function (fun) {
         }
     }
     queue.push(new Item(fun, args));
-    if (!draining) {
+    if (queue.length === 1 && !draining) {
         setTimeout(drainQueue, 0);
     }
 };
@@ -191,7 +191,7 @@ module.exports = {
   }
 };
 
-},{"./js/app-bar":4,"./js/app-canvas":5,"./js/checkbox":6,"./js/date-picker/date-picker":12,"./js/dialog":15,"./js/dialog-window":14,"./js/drop-down-icon":16,"./js/drop-down-menu":17,"./js/enhanced-button":18,"./js/flat-button":21,"./js/floating-action-button":22,"./js/font-icon":23,"./js/icon-button":24,"./js/input":26,"./js/left-nav":27,"./js/menu/menu":30,"./js/menu/menu-item":29,"./js/mixins/classable":32,"./js/mixins/click-awayable":33,"./js/mixins/window-listenable":35,"./js/paper":37,"./js/radio-button":39,"./js/radio-button-group":38,"./js/raised-button":40,"./js/slider":44,"./js/snackbar":45,"./js/svg-icons/navigation-chevron-left":47,"./js/svg-icons/navigation-chevron-right":48,"./js/svg-icons/navigation-menu":49,"./js/svg-icons/svg-icon":50,"./js/tabs/tab":55,"./js/tabs/tabs":57,"./js/text-field":58,"./js/toggle":59,"./js/toolbar":61,"./js/toolbar-group":60,"./js/tooltip":62,"./js/utils/css-event":64,"./js/utils/dom":66,"./js/utils/events":67,"./js/utils/key-code":68,"./js/utils/key-line":69}],4:[function(require,module,exports){
+},{"./js/app-bar":4,"./js/app-canvas":5,"./js/checkbox":6,"./js/date-picker/date-picker":12,"./js/dialog":15,"./js/dialog-window":14,"./js/drop-down-icon":16,"./js/drop-down-menu":17,"./js/enhanced-button":18,"./js/flat-button":21,"./js/floating-action-button":22,"./js/font-icon":23,"./js/icon-button":24,"./js/input":26,"./js/left-nav":27,"./js/menu/menu":30,"./js/menu/menu-item":29,"./js/mixins/classable":32,"./js/mixins/click-awayable":33,"./js/mixins/window-listenable":34,"./js/paper":36,"./js/radio-button":38,"./js/radio-button-group":37,"./js/raised-button":39,"./js/slider":43,"./js/snackbar":44,"./js/svg-icons/navigation-chevron-left":46,"./js/svg-icons/navigation-chevron-right":47,"./js/svg-icons/navigation-menu":48,"./js/svg-icons/svg-icon":49,"./js/tabs/tab":54,"./js/tabs/tabs":56,"./js/text-field":57,"./js/toggle":58,"./js/toolbar":60,"./js/toolbar-group":59,"./js/tooltip":61,"./js/utils/css-event":63,"./js/utils/dom":65,"./js/utils/events":66,"./js/utils/key-code":67,"./js/utils/key-line":68}],4:[function(require,module,exports){
 (function (process){
 var React = require('react');
 var Classable = require('./mixins/classable');
@@ -222,7 +222,7 @@ var AppBar = React.createClass({displayName: "AppBar",
   },
 
   componentDidMount: function() {
-    if (process.NODE_ENV !== 'production' && 
+    if (process.env.NODE_ENV !== 'production' &&
        (this.props.iconElementLeft && this.props.iconClassNameLeft)) {
         var warning = 'Properties iconClassNameLeft and iconElementLeft cannot be simultaneously ' +
                       'defined. Please use one or the other.';
@@ -242,7 +242,7 @@ var AppBar = React.createClass({displayName: "AppBar",
     if (this.props.title) {
       // If the title is a string, wrap in an h1 tag.
       // If not, just use it as a node.
-      title = toString.call(this.props.title) === '[object String]' ?
+      title = Object.prototype.toString.call(this.props.title) === '[object String]' ?
         React.createElement("h1", {className: "mui-app-bar-title"}, this.props.title) :
         this.props.title;
     }
@@ -267,7 +267,7 @@ var AppBar = React.createClass({displayName: "AppBar",
       }
     }
 
-    menuElementRight = (this.props.children) ? this.props.children : 
+    menuElementRight = (this.props.children) ? this.props.children :
                        (this.props.iconElementRight) ? this.props.iconElementRight : '';
 
     return (
@@ -288,7 +288,7 @@ var AppBar = React.createClass({displayName: "AppBar",
 module.exports = AppBar;
 
 }).call(this,require('_process'))
-},{"./icon-button":24,"./mixins/classable":32,"./paper":37,"./svg-icons/navigation-menu":49,"_process":1,"react":248}],5:[function(require,module,exports){
+},{"./icon-button":24,"./mixins/classable":32,"./paper":36,"./svg-icons/navigation-menu":48,"_process":1,"react":248}],5:[function(require,module,exports){
 var React = require('react'),
   Classable = require('./mixins/classable');
 
@@ -379,7 +379,7 @@ var Checkbox = React.createClass({displayName: "Checkbox",
 
 module.exports = Checkbox;
 
-},{"./enhanced-switch":19,"./mixins/classable":32,"./svg-icons/toggle-check-box-checked":51,"./svg-icons/toggle-check-box-outline-blank":52,"react":248}],7:[function(require,module,exports){
+},{"./enhanced-switch":19,"./mixins/classable":32,"./svg-icons/toggle-check-box-checked":50,"./svg-icons/toggle-check-box-outline-blank":51,"react":248}],7:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 var DateTime = require('../utils/date-time');
@@ -392,7 +392,10 @@ var CalendarMonth = React.createClass({displayName: "CalendarMonth",
   propTypes: {
     displayDate: React.PropTypes.object.isRequired,
     onDayTouchTap: React.PropTypes.func,
-    selectedDate: React.PropTypes.object.isRequired
+    selectedDate: React.PropTypes.object.isRequired,
+    maxDate: React.PropTypes.object,
+    minDate: React.PropTypes.object,
+    autoOk: React.PropTypes.bool
   },
 
   render: function() {
@@ -418,14 +421,29 @@ var CalendarMonth = React.createClass({displayName: "CalendarMonth",
       );
     }, this);
   },
+  _isDisabled: function(day){
+    var minDate = this.props.minDate;
+    var maxDate = this.props.maxDate;
 
+    if(minDate != null && day < minDate){
+      return true;
+    }
+
+    if(maxDate != null && day > maxDate){
+      return true;
+    }
+
+    return false;
+  },
   _getDayElements: function(week) {
     return week.map(function(day, i) {
       var selected = DateTime.isEqualDate(this.props.selectedDate, day);
+      var disabled = this._isDisabled(day);
       return (
         React.createElement(DayButton, {
           key: i, 
           date: day, 
+          disabled: disabled, 
           onTouchTap: this._handleDayTouchTap, 
           selected: selected})
       );
@@ -439,7 +457,7 @@ var CalendarMonth = React.createClass({displayName: "CalendarMonth",
 });
 
 module.exports = CalendarMonth;
-},{"../mixins/classable":32,"../utils/date-time":65,"./day-button":13,"react":248}],8:[function(require,module,exports){
+},{"../mixins/classable":32,"../utils/date-time":64,"./day-button":13,"react":248}],8:[function(require,module,exports){
 var React = require('react');
 var DateTime = require('../utils/date-time');
 var IconButton = require('../icon-button');
@@ -452,7 +470,16 @@ var CalendarToolbar = React.createClass({displayName: "CalendarToolbar",
   propTypes: {
     displayDate: React.PropTypes.object.isRequired,
     onLeftTouchTap: React.PropTypes.func,
-    onRightTouchTap: React.PropTypes.func
+    onRightTouchTap: React.PropTypes.func,
+    maxDate: React.PropTypes.object,
+    minDate: React.PropTypes.object
+  },
+
+  getDefaultProps: function () {
+      return {
+        maxDate: null,
+        minDate: null
+      };
   },
 
   getInitialState: function() {
@@ -471,10 +498,32 @@ var CalendarToolbar = React.createClass({displayName: "CalendarToolbar",
       });
     }
   },
+  _isDisabled: function(direction){
+    
+    var date = this.props.displayDate;
+    var minDate = this.props.minDate;
+    var maxDate = this.props.maxDate;
 
+    if(direction == "left" && minDate){      
+      if(date.getFullYear() < minDate.getFullYear()) return true;
+      if(date.getFullYear() == minDate.getFullYear()){
+        return date.getMonth() <= minDate.getMonth();
+      }
+    }else if(direction == "right" && maxDate){
+      if(date.getFullYear() > maxDate.getFullYear()) return true;
+      if(date.getFullYear() == maxDate.getFullYear()){
+        return date.getMonth() >= maxDate.getMonth();
+      }
+    }
+
+    return false;
+  },
   render: function() {
     var month = DateTime.getFullMonth(this.props.displayDate);
     var year = this.props.displayDate.getFullYear();
+
+    var disableLeft = this._isDisabled("left");
+    var disableRight = this._isDisabled("right");
 
     return (
       React.createElement("div", {className: "mui-date-picker-calendar-toolbar"}, 
@@ -486,12 +535,14 @@ var CalendarToolbar = React.createClass({displayName: "CalendarToolbar",
         ), 
 
         React.createElement(IconButton, {
+          disabled: disableLeft, 
           className: "mui-date-picker-calendar-toolbar-button-left", 
           onTouchTap: this.props.onLeftTouchTap}, 
             React.createElement(NavigationChevronLeft, null)
         ), 
 
         React.createElement(IconButton, {
+          disabled: disableRight, 
           className: "mui-date-picker-calendar-toolbar-button-right", 
           onTouchTap: this.props.onRightTouchTap}, 
             React.createElement(NavigationChevronRight, null)
@@ -505,7 +556,7 @@ var CalendarToolbar = React.createClass({displayName: "CalendarToolbar",
 
 module.exports = CalendarToolbar;
 
-},{"../icon-button":24,"../svg-icons/navigation-chevron-left":47,"../svg-icons/navigation-chevron-right":48,"../transition-groups/slide-in":63,"../utils/date-time":65,"react":248}],9:[function(require,module,exports){
+},{"../icon-button":24,"../svg-icons/navigation-chevron-left":46,"../svg-icons/navigation-chevron-right":47,"../transition-groups/slide-in":62,"../utils/date-time":64,"react":248}],9:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 var WindowListenable = require('../mixins/window-listenable');
@@ -522,7 +573,10 @@ var Calendar = React.createClass({displayName: "Calendar",
 
   propTypes: {
     initialDate: React.PropTypes.object,
-    isActive: React.PropTypes.bool
+    isActive: React.PropTypes.bool,
+    maxDate: React.PropTypes.object,
+    minDate: React.PropTypes.object,
+    onSelectedDate: React.PropTypes.func
   },
 
   windowListeners: {
@@ -531,7 +585,9 @@ var Calendar = React.createClass({displayName: "Calendar",
 
   getDefaultProps: function() {
     return {
-      initialDate: new Date()
+      initialDate: new Date(),
+      maxDate: null,
+      minDate: null
     };
   },
 
@@ -571,6 +627,8 @@ var Calendar = React.createClass({displayName: "Calendar",
         React.createElement("div", {
           className: "mui-date-picker-calendar-container"}, 
           React.createElement(CalendarToolbar, {
+            minDate: this.props.minDate, 
+            maxDate: this.props.maxDate, 
             displayDate: this.state.displayDate, 
             onLeftTouchTap: this._handleLeftTouchTap, 
             onRightTouchTap: this._handleRightTouchTap}), 
@@ -588,6 +646,8 @@ var Calendar = React.createClass({displayName: "Calendar",
           React.createElement(SlideInTransitionGroup, {
             direction: this.state.transitionDirection}, 
             React.createElement(CalendarMonth, {
+              minDate: this.props.minDate, 
+              maxDate: this.props.maxDate, 
               key: this.state.displayDate.toDateString(), 
               displayDate: this.state.displayDate, 
               onDayTouchTap: this._handleDayTouchTap, 
@@ -639,6 +699,7 @@ var Calendar = React.createClass({displayName: "Calendar",
         selectedDate: d
       });
     }
+    if(this.props.onSelectedDate) this.props.onSelectedDate(d);
   },
 
   _handleDayTouchTap: function(e, date) {
@@ -700,7 +761,7 @@ var Calendar = React.createClass({displayName: "Calendar",
 });
 
 module.exports = Calendar;
-},{"../mixins/classable":32,"../mixins/window-listenable":35,"../transition-groups/slide-in":63,"../utils/date-time":65,"../utils/key-code":68,"./calendar-month":7,"./calendar-toolbar":8,"./date-display":10,"react":248}],10:[function(require,module,exports){
+},{"../mixins/classable":32,"../mixins/window-listenable":34,"../transition-groups/slide-in":62,"../utils/date-time":64,"../utils/key-code":67,"./calendar-month":7,"./calendar-toolbar":8,"./date-display":10,"react":248}],10:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 var DateTime = require('../utils/date-time');
@@ -780,7 +841,7 @@ var DateDisplay = React.createClass({displayName: "DateDisplay",
 });
 
 module.exports = DateDisplay;
-},{"../mixins/classable":32,"../transition-groups/slide-in":63,"../utils/date-time":65,"react":248}],11:[function(require,module,exports){
+},{"../mixins/classable":32,"../transition-groups/slide-in":62,"../utils/date-time":64,"react":248}],11:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 var WindowListenable = require('../mixins/window-listenable');
@@ -798,6 +859,8 @@ var DatePickerDialog = React.createClass({displayName: "DatePickerDialog",
     onAccept: React.PropTypes.func,
     onShow: React.PropTypes.func,
     onDismiss: React.PropTypes.func,
+    minDate: React.PropTypes.object,
+    maxDate: React.PropTypes.object,
   },
 
   windowListeners: {
@@ -830,6 +893,10 @@ var DatePickerDialog = React.createClass({displayName: "DatePickerDialog",
         onTouchTap: this._handleOKTouchTap})
     ];
 
+    if(this.props.autoOk){
+      actions = actions.slice(0, 1);
+    }
+
     return (
       React.createElement(DialogWindow, React.__spread({},  other, 
         {ref: "dialogWindow", 
@@ -840,7 +907,10 @@ var DatePickerDialog = React.createClass({displayName: "DatePickerDialog",
         onShow: this._handleDialogShow, 
         repositionOnUpdate: false}), 
         React.createElement(Calendar, {
+          minDate: this.props.minDate, 
+          maxDate: this.props.maxDate, 
           ref: "calendar", 
+          onSelectedDate: this._onSelectedDate, 
           initialDate: this.props.initialDate, 
           isActive: this.state.isCalendarActive})
       )
@@ -853,6 +923,12 @@ var DatePickerDialog = React.createClass({displayName: "DatePickerDialog",
 
   dismiss: function() {
     this.refs.dialogWindow.dismiss();
+  },
+
+  _onSelectedDate: function(){
+    if(this.props.autoOk){
+      setTimeout(this._handleOKTouchTap.bind(this), 300);
+    }
   },
 
   _handleCancelTouchTap: function() {
@@ -893,13 +969,14 @@ var DatePickerDialog = React.createClass({displayName: "DatePickerDialog",
           this._handleOKTouchTap();
           break;
       }
-    } 
+    }
   }
 
 });
 
 module.exports = DatePickerDialog;
-},{"../dialog-window":14,"../flat-button":21,"../mixins/classable":32,"../mixins/window-listenable":35,"../utils/key-code":68,"./calendar":9,"react":248}],12:[function(require,module,exports){
+
+},{"../dialog-window":14,"../flat-button":21,"../mixins/classable":32,"../mixins/window-listenable":34,"../utils/key-code":67,"./calendar":9,"react":248}],12:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 var WindowListenable = require('../mixins/window-listenable');
@@ -921,6 +998,9 @@ var DatePicker = React.createClass({displayName: "DatePicker",
     onChange: React.PropTypes.func,
     onShow: React.PropTypes.func,
     onDismiss: React.PropTypes.func,
+    minDate: React.PropTypes.object,
+    maxDate: React.PropTypes.object,
+    autoOk: React.PropTypes.bool,
   },
 
   windowListeners: {
@@ -929,7 +1009,10 @@ var DatePicker = React.createClass({displayName: "DatePicker",
 
   getDefaultProps: function() {
     return {
-      formatDate: DateTime.format
+      formatDate: DateTime.format,
+      minDate: null,
+      maxDate: null,
+      autoOk: false
     };
   },
 
@@ -949,7 +1032,10 @@ var DatePicker = React.createClass({displayName: "DatePicker",
       
       
       
-      this.props,formatDate=$__0.formatDate,mode=$__0.mode,onFocus=$__0.onFocus,onTouchTap=$__0.onTouchTap,onShow=$__0.onShow,onDismiss=$__0.onDismiss,other=(function(source, exclusion) {var rest = {};var hasOwn = Object.prototype.hasOwnProperty;if (source == null) {throw new TypeError();}for (var key in source) {if (hasOwn.call(source, key) && !hasOwn.call(exclusion, key)) {rest[key] = source[key];}}return rest;})($__0,{formatDate:1,mode:1,onFocus:1,onTouchTap:1,onShow:1,onDismiss:1});
+      
+      
+      
+      this.props,formatDate=$__0.formatDate,mode=$__0.mode,onFocus=$__0.onFocus,onTouchTap=$__0.onTouchTap,onShow=$__0.onShow,onDismiss=$__0.onDismiss,minDate=$__0.minDate,maxDate=$__0.maxDate,autoOk=$__0.autoOk,other=(function(source, exclusion) {var rest = {};var hasOwn = Object.prototype.hasOwnProperty;if (source == null) {throw new TypeError();}for (var key in source) {if (hasOwn.call(source, key) && !hasOwn.call(exclusion, key)) {rest[key] = source[key];}}return rest;})($__0,{formatDate:1,mode:1,onFocus:1,onTouchTap:1,onShow:1,onDismiss:1,minDate:1,maxDate:1,autoOk:1});
     var classes = this.getClasses('mui-date-picker', {
       'mui-is-landscape': this.props.mode === 'landscape',
       'mui-is-inline': this.props.mode === 'inline'
@@ -969,6 +1055,9 @@ var DatePicker = React.createClass({displayName: "DatePicker",
           onFocus: this._handleInputFocus, 
           onTouchTap: this._handleInputTouchTap})), 
         React.createElement(DatePickerDialog, {
+          minDate: minDate, 
+          maxDate: maxDate, 
+          autoOk: autoOk, 
           ref: "dialogWindow", 
           initialDate: this.state.dialogDate, 
           onAccept: this._handleDialogAccept, 
@@ -1017,7 +1106,7 @@ var DatePicker = React.createClass({displayName: "DatePicker",
 
 module.exports = DatePicker;
 
-},{"../mixins/classable":32,"../mixins/window-listenable":35,"../text-field":58,"../utils/date-time":65,"../utils/key-code":68,"./date-picker-dialog":11,"react":248}],13:[function(require,module,exports){
+},{"../mixins/classable":32,"../mixins/window-listenable":34,"../text-field":57,"../utils/date-time":64,"../utils/key-code":67,"./date-picker-dialog":11,"react":248}],13:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 var DateTime = require('../utils/date-time');
@@ -1067,7 +1156,7 @@ var DayButton = React.createClass({displayName: "DayButton",
 });
 
 module.exports = DayButton;
-},{"../enhanced-button":18,"../mixins/classable":32,"../utils/date-time":65,"react":248}],14:[function(require,module,exports){
+},{"../enhanced-button":18,"../mixins/classable":32,"../utils/date-time":64,"react":248}],14:[function(require,module,exports){
 var React = require('react');
 var WindowListenable = require('./mixins/window-listenable');
 var CssEvent = require('./utils/css-event');
@@ -1083,12 +1172,14 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
 
   propTypes: {
     actions: React.PropTypes.array,
+    actionFocus: React.PropTypes.string,
     contentClassName: React.PropTypes.string,
     openImmediately: React.PropTypes.bool,
     onClickAway: React.PropTypes.func,
     onDismiss: React.PropTypes.func,
     onShow: React.PropTypes.func,
-    repositionOnUpdate: React.PropTypes.bool
+    repositionOnUpdate: React.PropTypes.bool,
+    modal: React.PropTypes.bool
   },
 
   windowListeners: {
@@ -1098,7 +1189,8 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
   getDefaultProps: function() {
     return {
       actions: [],
-      repositionOnUpdate: true
+      repositionOnUpdate: true,
+      modal: false
     };
   },
 
@@ -1113,11 +1205,13 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
     if (this.props.openImmediately) {
       this.refs.dialogOverlay.preventScrolling();
       this._onShow();
+      this._focusOnAction();
     }
   },
 
   componentDidUpdate: function (prevProps, prevState) {
     this._positionDialog();
+    this._focusOnAction();
   },
 
   render: function() {
@@ -1147,7 +1241,7 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
   },
 
   dismiss: function() {
-    CssEvent.onTransitionEnd(this.getDOMNode(), function() {
+    CssEvent.onTransitionEnd(React.findDOMNode(this), function() {
       this.refs.dialogOverlay.allowScrolling();
     }.bind(this));
 
@@ -1157,6 +1251,7 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
 
   show: function() {
     this.refs.dialogOverlay.preventScrolling();
+    this._focusOnAction();
 
     this.setState({ open: true });
     this._onShow();
@@ -1164,19 +1259,26 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
 
   _addClassName: function(reactObject, className) {
     var originalClassName = reactObject.props.className;
+    var newClassname = originalClassName ? originalClassName + ' ' + className : className;
 
-    reactObject.props.className = originalClassName ?
-      originalClassName + ' ' + className : className;
+    return React.cloneElement(reactObject, { className: newClassname });
   },
 
   _getAction: function(actionJSON, key) {
-    var onClickHandler = actionJSON.onClick ? actionJSON.onClick : this.dismiss;
+    var props = {
+      key: key,
+      secondary: true,
+      onClick: actionJSON.onClick ? actionJSON.onClick : this.dismiss,
+      label: actionJSON.text
+    };
+    if (actionJSON.ref) {
+      props.ref = actionJSON.ref;
+      props.keyboardFocused = actionJSON.ref === this.props.actionFocus;
+    }
+    
     return (
-      React.createElement(FlatButton, {
-        key: key, 
-        secondary: true, 
-        onClick: onClickHandler, 
-        label: actionJSON.text})
+      React.createElement(FlatButton, React.__spread({}, 
+        props))
     );
   },
 
@@ -1186,14 +1288,14 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
 
     if (actions.length) {
       for (var i = 0; i < actions.length; i++) {
-        currentAction = actions[i];
+        var currentAction = actions[i];
 
         //if the current action isn't a react object, create one
         if (!React.isValidElement(currentAction)) {
           currentAction = this._getAction(currentAction, i);
         }
 
-        this._addClassName(currentAction, 'mui-dialog-window-action');
+        currentAction = this._addClassName(currentAction, 'mui-dialog-window-action');
         actionObjects.push(currentAction);
       };
 
@@ -1212,8 +1314,8 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
 
     if (this.state.open) {
 
-      container = this.getDOMNode(),
-      dialogWindow = this.refs.dialogWindow.getDOMNode(),
+      container = React.findDOMNode(this),
+      dialogWindow = React.findDOMNode(this.refs.dialogWindow),
       containerHeight = container.offsetHeight,
 
       //Reset the height in case the window was resized.
@@ -1229,6 +1331,12 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
     }
   },
   
+  _focusOnAction: function() {
+    if (this.props.actionFocus) {
+      React.findDOMNode(this.refs[this.props.actionFocus]).focus();
+    }
+  },
+  
   _onShow: function() {
     if (this.props.onShow) this.props.onShow();
   },
@@ -1238,12 +1346,14 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
   },
 
   _handleOverlayTouchTap: function() {
-    this.dismiss();
-    if (this.props.onClickAway) this.props.onClickAway();
+    if (!this.props.modal) {
+      this.dismiss();
+      if (this.props.onClickAway) this.props.onClickAway();
+    }
   },
 
   _handleWindowKeyUp: function(e) {
-    if (e.keyCode == KeyCode.ESC) {
+    if (!this.props.modal && e.keyCode == KeyCode.ESC) {
       this.dismiss();
     }
   }
@@ -1252,7 +1362,7 @@ var DialogWindow = React.createClass({displayName: "DialogWindow",
 
 module.exports = DialogWindow;
 
-},{"./flat-button":21,"./mixins/classable":32,"./mixins/window-listenable":35,"./overlay":36,"./paper":37,"./utils/css-event":64,"./utils/key-code":68,"react":248}],15:[function(require,module,exports){
+},{"./flat-button":21,"./mixins/classable":32,"./mixins/window-listenable":34,"./overlay":35,"./paper":36,"./utils/css-event":63,"./utils/key-code":67,"react":248}],15:[function(require,module,exports){
 var React = require('react');
 var Classable = require('./mixins/classable');
 var DialogWindow = require('./dialog-window');
@@ -1262,16 +1372,24 @@ var Dialog = React.createClass({displayName: "Dialog",
   mixins: [Classable],
 
   propTypes: {
-    title: React.PropTypes.string
+    title: React.PropTypes.node
   },
 
   render: function() {
     var $__0=
       
       
-      
-      this.props,className=$__0.className,title=$__0.title,other=(function(source, exclusion) {var rest = {};var hasOwn = Object.prototype.hasOwnProperty;if (source == null) {throw new TypeError();}for (var key in source) {if (hasOwn.call(source, key) && !hasOwn.call(exclusion, key)) {rest[key] = source[key];}}return rest;})($__0,{className:1,title:1});
+      this.props,className=$__0.className,other=(function(source, exclusion) {var rest = {};var hasOwn = Object.prototype.hasOwnProperty;if (source == null) {throw new TypeError();}for (var key in source) {if (hasOwn.call(source, key) && !hasOwn.call(exclusion, key)) {rest[key] = source[key];}}return rest;})($__0,{className:1});
     var classes = this.getClasses('mui-dialog');
+    var title;
+
+    if (this.props.title) {
+      // If the title is a string, wrap in an h3 tag.
+      // If not, just use it as a node.
+      title = Object.prototype.toString.call(this.props.title) === '[object String]' ?
+        React.createElement("h3", {className: "mui-dialog-title"}, this.props.title) :
+        this.props.title;
+    }
 
     return (
       React.createElement(DialogWindow, React.__spread({}, 
@@ -1279,11 +1397,11 @@ var Dialog = React.createClass({displayName: "Dialog",
         {ref: "dialogWindow", 
         className: classes}), 
 
-        React.createElement("h3", {className: "mui-dialog-title"}, this.props.title), 
+        title, 
         React.createElement("div", {ref: "dialogContent", className: "mui-dialog-content"}, 
           this.props.children
         )
-        
+
       )
     );
   },
@@ -1299,6 +1417,7 @@ var Dialog = React.createClass({displayName: "Dialog",
 });
 
 module.exports = Dialog;
+
 },{"./dialog-window":14,"./mixins/classable":32,"react":248}],16:[function(require,module,exports){
 var React = require('react');
 var Classable = require('./mixins/classable');
@@ -1369,12 +1488,12 @@ var DropDownIcon = React.createClass({displayName: "DropDownIcon",
 
 module.exports = DropDownIcon;
 
-},{"./font-icon":23,"./menu/menu":30,"./mixins/classable":32,"./mixins/click-awayable":33,"./paper":37,"./utils/key-line":69,"react":248}],17:[function(require,module,exports){
+},{"./font-icon":23,"./menu/menu":30,"./mixins/classable":32,"./mixins/click-awayable":33,"./paper":36,"./utils/key-line":68,"react":248}],17:[function(require,module,exports){
+(function (process){
 var React = require('react');
 var Classable = require('./mixins/classable');
 var ClickAwayable = require('./mixins/click-awayable');
 var DropDownArrow = require('./svg-icons/drop-down-arrow');
-var KeyLine = require('./utils/key-line');
 var Paper = require('./paper');
 var Menu = require('./menu/menu');
 
@@ -1407,12 +1526,11 @@ var DropDownMenu = React.createClass({displayName: "DropDownMenu",
 
   componentDidMount: function() {
     if (this.props.autoWidth) this._setWidth();
+    if (this.props.hasOwnProperty('selectedIndex')) this._setSelectedIndex(this.props);
   },
 
   componentWillReceiveProps: function(nextProps) {
-    if (nextProps.hasOwnProperty('selectedIndex')) {
-      this.setState({selectedIndex: nextProps.selectedIndex});
-    }
+    if (this.props.hasOwnProperty('selectedIndex')) this._setSelectedIndex(nextProps);
   },
 
   render: function() {
@@ -1443,10 +1561,20 @@ var DropDownMenu = React.createClass({displayName: "DropDownMenu",
   },
 
   _setWidth: function() {
-    var el = this.getDOMNode(),
-      menuItemsDom = this.refs.menuItems.getDOMNode();
+    var el = React.findDOMNode(this),
+      menuItemsDom = React.findDOMNode(this.refs.menuItems);
 
     el.style.width = menuItemsDom.offsetWidth + 'px';
+  },
+
+  _setSelectedIndex: function(props) {
+    var selectedIndex = props.selectedIndex;
+
+    if (process.env.NODE_ENV !== 'production' && selectedIndex < 0) {
+      console.warn('Cannot set selectedIndex to a negative index.', selectedIndex);
+    }
+
+    this.setState({selectedIndex: (selectedIndex > -1) ? selectedIndex : 0});
   },
 
   _onControlClick: function(e) {
@@ -1464,7 +1592,9 @@ var DropDownMenu = React.createClass({displayName: "DropDownMenu",
 });
 
 module.exports = DropDownMenu;
-},{"./menu/menu":30,"./mixins/classable":32,"./mixins/click-awayable":33,"./paper":37,"./svg-icons/drop-down-arrow":46,"./utils/key-line":69,"react":248}],18:[function(require,module,exports){
+
+}).call(this,require('_process'))
+},{"./menu/menu":30,"./mixins/classable":32,"./mixins/click-awayable":33,"./paper":36,"./svg-icons/drop-down-arrow":45,"_process":1,"react":248}],18:[function(require,module,exports){
 var React = require('react');
 var KeyCode = require('./utils/key-code');
 var Classable = require('./mixins/classable');
@@ -1482,6 +1612,7 @@ var EnhancedButton = React.createClass({displayName: "EnhancedButton",
     disabled: React.PropTypes.bool,
     disableFocusRipple: React.PropTypes.bool,
     disableTouchRipple: React.PropTypes.bool,
+    keyboardFocused: React.PropTypes.bool,
     linkButton: React.PropTypes.bool,
     onBlur: React.PropTypes.func,
     onFocus: React.PropTypes.func,
@@ -1495,7 +1626,7 @@ var EnhancedButton = React.createClass({displayName: "EnhancedButton",
 
   getInitialState: function() {
     return {
-      isKeyboardFocused: false 
+      isKeyboardFocused: !this.props.disabled && this.props.keyboardFocused
     };
   },
 
@@ -1566,58 +1697,77 @@ var EnhancedButton = React.createClass({displayName: "EnhancedButton",
   },
 
   _handleWindowKeydown: function(e) {
-    if (e.keyCode == KeyCode.TAB) this._tabPressed = true;
-    if (e.keyCode == KeyCode.ENTER && this.state.isKeyboardFocused) {
-      this._handleTouchTap(e);
+    if (!this.props.disabled) {
+      if (e.keyCode == KeyCode.TAB) this._tabPressed = true;
+      if (e.keyCode == KeyCode.ENTER && this.state.isKeyboardFocused) {
+        this._handleTouchTap(e);
+      }
     }
   },
 
   _handleWindowKeyup: function(e) {
-    if (e.keyCode == KeyCode.SPACE && this.state.isKeyboardFocused) {
+    if (!this.props.disabled && e.keyCode == KeyCode.SPACE && this.state.isKeyboardFocused) {
       this._handleTouchTap(e);
     }
   },
 
   _handleBlur: function(e) {
-    this.setState({
-      isKeyboardFocused: false
-    });
+    this._cancelFocusTimeout();
+    if (!this.props.disabled) {
+      this.setState({
+        isKeyboardFocused: false
+      });
 
-    if (this.props.onBlur) this.props.onBlur(e);
+      if (this.props.onBlur) this.props.onBlur(e);
+    }
   },
 
   _handleFocus: function(e) {
-    //setTimeout is needed becuase the focus event fires first
-    //Wait so that we can capture if this was a keyboard focus
-    //or touch focus
-    setTimeout(function() {
-      if (this._tabPressed) {
-        this.setState({
-          isKeyboardFocused: true
-        });
-      }
-    }.bind(this), 150);
+    if (!this.props.disabled) {
+      //setTimeout is needed because the focus event fires first
+      //Wait so that we can capture if this was a keyboard focus
+      //or touch focus
+      this._focusTimeout = setTimeout(function() {
+        if (this._tabPressed) {
+          this.setState({
+            isKeyboardFocused: true
+          });
+        }
+      }.bind(this), 150);
     
-    if (this.props.onFocus) this.props.onFocus(e);
+      if (this.props.onFocus) this.props.onFocus(e);
+    }
   },
 
   _handleTouchTap: function(e) {
-    this._tabPressed = false;
-    this.setState({
-      isKeyboardFocused: false
-    });
-    if (this.props.onTouchTap) this.props.onTouchTap(e);
+    this._cancelFocusTimeout();
+    if (!this.props.disabled) {
+      this._tabPressed = false;
+      this.setState({
+        isKeyboardFocused: false
+      });
+     
+      if (this.props.onTouchTap) this.props.onTouchTap(e);
+    }
+  },
+
+  _cancelFocusTimeout: function () {
+    if (this._focusTimeout) {
+      clearTimeout(this._focusTimeout);
+      this._focusTimeout = null;
+    }
   }
 
 });
 
 module.exports = EnhancedButton;
-},{"./mixins/classable":32,"./mixins/window-listenable":35,"./ripples/focus-ripple":42,"./ripples/touch-ripple":43,"./utils/key-code":68,"react":248}],19:[function(require,module,exports){
+
+},{"./mixins/classable":32,"./mixins/window-listenable":34,"./ripples/focus-ripple":41,"./ripples/touch-ripple":42,"./utils/key-code":67,"react":248}],19:[function(require,module,exports){
 (function (process){
 var React = require('react');
 var KeyCode = require('./utils/key-code');
 var Classable = require('./mixins/classable');
-var DomIdable = require('./mixins/dom-idable');
+var UniqueId = require('./utils/unique-id');
 var WindowListenable = require('./mixins/window-listenable');
 var FocusRipple = require('./ripples/focus-ripple');
 var TouchRipple = require('./ripples/touch-ripple');
@@ -1625,24 +1775,24 @@ var Paper = require('./paper');
 
 var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
 
-  mixins: [Classable, DomIdable, WindowListenable],
+  mixins: [Classable, WindowListenable],
 
-	propTypes: {
+  propTypes: {
       id: React.PropTypes.string,
       inputType: React.PropTypes.string.isRequired,
       switchElement: React.PropTypes.element.isRequired,
       iconClassName: React.PropTypes.string.isRequired,
       name: React.PropTypes.string,
-	    value: React.PropTypes.string,
-	    label: React.PropTypes.string,
-	    onSwitch: React.PropTypes.func,
-	    required: React.PropTypes.bool,
-	    disabled: React.PropTypes.bool,
-	    defaultSwitched: React.PropTypes.bool,
+      value: React.PropTypes.string,
+      label: React.PropTypes.string,
+      onSwitch: React.PropTypes.func,
+      required: React.PropTypes.bool,
+      disabled: React.PropTypes.bool,
+      defaultSwitched: React.PropTypes.bool,
       labelPosition: React.PropTypes.oneOf(['left', 'right']),
       disableFocusRipple: React.PropTypes.bool,
       disableTouchRipple: React.PropTypes.bool
-	  },
+    },
 
   windowListeners: {
     'keydown': '_handleWindowKeydown',
@@ -1660,11 +1810,11 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
       switched: this.props.defaultSwitched ||
         (this.props.valueLink && this.props.valueLink.value),
       isKeyboardFocused: false
-    }
+    };
   },
 
   componentDidMount: function() {
-    var inputNode = this.refs.checkbox.getDOMNode();
+    var inputNode = React.findDOMNode(this.refs.checkbox);
     this.setState({switched: inputNode.checked});
   },
 
@@ -1672,8 +1822,8 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
     var hasCheckedLinkProp = nextProps.hasOwnProperty('checkedLink');
     var hasCheckedProp = nextProps.hasOwnProperty('checked');
     var hasToggledProp = nextProps.hasOwnProperty('toggled');
-    var hasNewDefaultProp = 
-      (nextProps.hasOwnProperty('defaultSwitched') && 
+    var hasNewDefaultProp =
+      (nextProps.hasOwnProperty('defaultSwitched') &&
       (nextProps.defaultSwitched != this.props.defaultSwitched));
     var newState = {};
 
@@ -1715,8 +1865,8 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
       'mui-is-required': this.props.required
     });
 
-    var inputId = this.props.id || this.getDomId();
-    
+    var inputId = this.props.id || UniqueId.generate();
+
     var labelElement = this.props.label ? (
       React.createElement("label", {className: "mui-switch-label", htmlFor: inputId}, 
         this.props.label
@@ -1731,20 +1881,25 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
       defaultChecked: this.props.defaultSwitched,
       onBlur: this._handleBlur,
       onFocus: this._handleFocus,
-      onMouseUp: this._handleMouseUp,
-      onMouseDown: this._handleMouseDown,
-      onMouseOut: this._handleMouseOut,
-      onTouchStart: this._handleTouchStart,
-      onTouchEnd: this._handleTouchEnd
     };
+
+    var hideTouchRipple = this.props.disabled || disableTouchRipple;
+
+    if(!hideTouchRipple) {
+      inputProps.onMouseUp = this._handleMouseUp;
+      inputProps.onMouseDown = this._handleMouseDown;
+      inputProps.onMouseOut = this._handleMouseOut;
+      inputProps.onTouchStart = this._handleTouchStart;
+      inputProps.onTouchEnd = this._handleTouchEnd;
+    }
 
     if (!this.props.hasOwnProperty('checkedLink')) {
       inputProps.onChange = this._handleChange;
     }
 
     var inputElement = (
-      React.createElement("input", React.__spread({},  
-        other,  
+      React.createElement("input", React.__spread({}, 
+        other, 
         inputProps, 
         {className: "mui-enhanced-switch-input"}))
     );
@@ -1763,7 +1918,7 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
     );
 
     var ripples = [
-      this.props.disabled || disableTouchRipple ? null : touchRipple,
+      hideTouchRipple ? null : touchRipple,
       this.props.disabled || disableFocusRipple ? null : focusRipple
     ];
 
@@ -1778,13 +1933,13 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
         React.createElement("div", {className: iconClassName}, 
           React.createElement("div", {className: "mui-toggle-track"}), 
           React.createElement(Paper, {className: "mui-toggle-thumb", zDepth: 1}, " ", ripples, " ")
-        )      
+        )
     );
 
     var labelPositionExist = this.props.labelPosition;
 
     // Position is left if not defined or invalid.
-    var elementsInOrder = (labelPositionExist && 
+    var elementsInOrder = (labelPositionExist &&
       (this.props.labelPosition.toUpperCase() === "RIGHT")) ? (
         React.createElement("div", null, 
           switchElement, 
@@ -1807,22 +1962,22 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
 
 
   isSwitched: function() {
-    return this.refs.checkbox.getDOMNode().checked;
+    return React.findDOMNode(this.refs.checkbox).checked;
   },
 
   // no callback here because there is no event
   setSwitched: function(newSwitchedValue) {
-    if (!this.props.hasOwnProperty('checked') || this.props.checked == false) {
-      this.setState({switched: newSwitchedValue});  
-      this.refs.checkbox.getDOMNode().checked = newSwitchedValue;
-    } else if (process.NODE_ENV !== 'production') {
+    if (!this.props.hasOwnProperty('checked') || this.props.checked === false) {
+      this.setState({switched: newSwitchedValue});
+      React.findDOMNode(this.refs.checkbox).checked = newSwitchedValue;
+    } else if (process.env.NODE_ENV !== 'production') {
       var message = 'Cannot call set method while checked is defined as a property.';
       console.error(message);
     }
   },
 
   getValue: function() {
-    return this.refs.checkbox.getDOMNode().value;
+    return React.findDOMNode(this.refs.checkbox).value;
   },
 
   isKeyboardFocused: function() {
@@ -1830,25 +1985,25 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
   },
 
   _handleChange: function(e) {
-    
+
     this._tabPressed = false;
     this.setState({
       isKeyboardFocused: false
     });
 
-    var isInputChecked = this.refs.checkbox.getDOMNode().checked;
-    
+    var isInputChecked = React.findDOMNode(this.refs.checkbox).checked;
+
     if (!this.props.hasOwnProperty('checked')) this.setState({switched: isInputChecked});
     if (this.props.onSwitch) this.props.onSwitch(e, isInputChecked);
   },
 
-  /** 
-   * Because both the ripples and the checkbox input cannot share pointer 
-   * events, the checkbox input takes control of pointer events and calls 
+  /**
+   * Because both the ripples and the checkbox input cannot share pointer
+   * events, the checkbox input takes control of pointer events and calls
    * ripple animations manually.
    */
 
-  // Checkbox inputs only use SPACE to change their state. Using ENTER will 
+  // Checkbox inputs only use SPACE to change their state. Using ENTER will
   // update the ui but not the input.
   _handleWindowKeydown: function(e) {
     if (e.keyCode == KeyCode.TAB) this._tabPressed = true;
@@ -1903,7 +2058,7 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
         });
       }
     }.bind(this), 150);
-    
+
     if (this.props.onFocus) this.props.onFocus(e);
   }
 
@@ -1912,7 +2067,7 @@ var EnhancedSwitch = React.createClass({displayName: "EnhancedSwitch",
 module.exports = EnhancedSwitch;
 
 }).call(this,require('_process'))
-},{"./mixins/classable":32,"./mixins/dom-idable":34,"./mixins/window-listenable":35,"./paper":37,"./ripples/focus-ripple":42,"./ripples/touch-ripple":43,"./utils/key-code":68,"_process":1,"react":248}],20:[function(require,module,exports){
+},{"./mixins/classable":32,"./mixins/window-listenable":34,"./paper":36,"./ripples/focus-ripple":41,"./ripples/touch-ripple":42,"./utils/key-code":67,"./utils/unique-id":69,"_process":1,"react":248}],20:[function(require,module,exports){
 var React = require('react');
 var Classable = require('./mixins/classable');
 
@@ -1991,11 +2146,11 @@ var EnhancedTextarea = React.createClass({displayName: "EnhancedTextarea",
   },
 
   getInputNode: function() {
-    return this.refs.input.getDOMNode();
+    return React.findDOMNode(this.refs.input);
   },
 
   _syncHeightWithShadow: function(newValue, e) {
-    var shadow = this.refs.shadow.getDOMNode();
+    var shadow = React.findDOMNode(this.refs.shadow);
     var currentHeight = this.state.height;
     var newHeight;
 
@@ -2118,7 +2273,7 @@ var RaisedButton = React.createClass({displayName: "RaisedButton",
   },
 
   componentDidMount: function() {
-    if (process.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       if (this.props.iconClassName && this.props.children) {
         var warning = 'You have set both an iconClassName and a child icon. ' +
                       'It is recommended you use only one method when adding ' +
@@ -2201,7 +2356,7 @@ var RaisedButton = React.createClass({displayName: "RaisedButton",
 module.exports = RaisedButton;
 
 }).call(this,require('_process'))
-},{"./enhanced-button":18,"./font-icon":23,"./mixins/classable":32,"./paper":37,"_process":1,"react":248}],23:[function(require,module,exports){
+},{"./enhanced-button":18,"./font-icon":23,"./mixins/classable":32,"./paper":36,"_process":1,"react":248}],23:[function(require,module,exports){
 var React = require('react');
 var Classable = require('./mixins/classable');
 
@@ -2249,7 +2404,7 @@ var IconButton = React.createClass({displayName: "IconButton",
 
   getInitialState: function() {
     return {
-      tooltipShown: false 
+      tooltipShown: false
     };
   },
 
@@ -2257,7 +2412,7 @@ var IconButton = React.createClass({displayName: "IconButton",
     if (this.props.tooltip) {
       this._positionTooltip();
     }
-    if (process.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       if (this.props.iconClassName && this.props.children) {
         var warning = 'You have set both an iconClassName and a child icon. ' +
                       'It is recommended you use only one method when adding ' +
@@ -2312,7 +2467,7 @@ var IconButton = React.createClass({displayName: "IconButton",
   },
 
   _positionTooltip: function() {
-    var tooltip = this.refs.tooltip.getDOMNode();
+    var tooltip = React.findDOMNode(this.refs.tooltip);
     var tooltipWidth = tooltip.offsetWidth;
     var buttonWidth = 48;
 
@@ -2320,7 +2475,9 @@ var IconButton = React.createClass({displayName: "IconButton",
   },
 
   _showTooltip: function() {
-    if (!this.props.disabled) this.setState({ tooltipShown: true });
+    if (!this.props.disabled && this.props.tooltip) {
+      this.setState({ tooltipShown: true });
+    }
   },
 
   _hideTooltip: function() {
@@ -2352,7 +2509,7 @@ var IconButton = React.createClass({displayName: "IconButton",
 module.exports = IconButton;
 
 }).call(this,require('_process'))
-},{"./enhanced-button":18,"./font-icon":23,"./mixins/classable":32,"./tooltip":62,"_process":1,"react":248}],25:[function(require,module,exports){
+},{"./enhanced-button":18,"./font-icon":23,"./mixins/classable":32,"./tooltip":61,"_process":1,"react":248}],25:[function(require,module,exports){
 var React = require('react');
 
 var InkBar = React.createClass({displayName: "InkBar",
@@ -2415,7 +2572,7 @@ var Input = React.createClass({displayName: "Input",
   },
 
   componentDidMount: function() {
-    if (process.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       console.warn('Input has been deprecated. Please use TextField instead. See http://material-ui.com/#/components/text-fields');
     }
   },
@@ -2487,11 +2644,11 @@ var Input = React.createClass({displayName: "Input",
   },
 
   blur: function() {
-    if(this.isMounted()) this.refs.input.getDOMNode().blur();
+    if(this.isMounted()) React.findDOMNode(this.refs.input).blur();
   },
   
   focus: function() {
-    if (this.isMounted()) this.refs.input.getDOMNode().focus();
+    if (this.isMounted()) React.findDOMNode(this.refs.input).focus();
   },
 
   _onInputChange: function(e) {
@@ -2543,7 +2700,9 @@ var LeftNav = React.createClass({displayName: "LeftNav",
     header: React.PropTypes.element,
     onChange: React.PropTypes.func,
     menuItems: React.PropTypes.array.isRequired,
-    selectedIndex: React.PropTypes.number
+    selectedIndex: React.PropTypes.number,
+    onNavOpen: React.PropTypes.func,
+    onNavClose: React.PropTypes.func
   },
 
   windowListeners: {
@@ -2569,11 +2728,13 @@ var LeftNav = React.createClass({displayName: "LeftNav",
 
   close: function() {
     this.setState({ open: false });
+    if (this.props.onNavClose) this.props.onNavClose();
     return this;
   },
 
   open: function() {
     this.setState({ open: true });
+    if (this.props.onNavOpen) this.props.onNavOpen();
     return this;
   },
 
@@ -2631,7 +2792,8 @@ var LeftNav = React.createClass({displayName: "LeftNav",
 });
 
 module.exports = LeftNav;
-},{"./menu/menu":30,"./mixins/classable":32,"./mixins/window-listenable":35,"./overlay":36,"./paper":37,"./utils/key-code":68,"react":248}],28:[function(require,module,exports){
+
+},{"./menu/menu":30,"./mixins/classable":32,"./mixins/window-listenable":34,"./overlay":35,"./paper":36,"./utils/key-code":67,"react":248}],28:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 
@@ -2660,7 +2822,8 @@ var LinkMenuItem = React.createClass({displayName: "LinkMenuItem",
         var onClickHandler = (this.props.disabled) ? this._stopLink : undefined;
         // Prevent context menu 'Open In New Tab/Window'
         var linkAttribute = (this.props.disabled) ? 'data-href' : 'href';
-        var link = {linkAttribute: this.props.payload};
+        var link = {};
+        link[linkAttribute] = this.props.payload
         
         return (
             React.createElement("a", React.__spread({key: this.props.index, className: classes},  link, {target: this.props.target, onClick: onClickHandler}), this.props.text)
@@ -2673,6 +2836,7 @@ var LinkMenuItem = React.createClass({displayName: "LinkMenuItem",
 });
 
 module.exports = LinkMenuItem;
+
 },{"../mixins/classable":32,"react":248}],29:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
@@ -2780,7 +2944,7 @@ var MenuItem = React.createClass({displayName: "MenuItem",
 
 module.exports = MenuItem;
 
-},{"../font-icon":23,"../mixins/classable":32,"../toggle":59,"react":248}],30:[function(require,module,exports){
+},{"../font-icon":23,"../mixins/classable":32,"../toggle":58,"react":248}],30:[function(require,module,exports){
 var React = require('react');
 var CssEvent = require('../utils/css-event');
 var Dom = require('../utils/dom');
@@ -2820,7 +2984,7 @@ var NestedMenuItem = React.createClass({displayName: "NestedMenuItem",
   },
 
   componentClickAway: function() {
-    this.setState({ open: false });
+    this._closeNestedMenu();
   },
 
   componentDidMount: function() {
@@ -2838,7 +3002,7 @@ var NestedMenuItem = React.createClass({displayName: "NestedMenuItem",
     });
 
     return (
-      React.createElement("div", {className: classes}, 
+      React.createElement("div", {className: classes, onMouseEnter: this._openNestedMenu, onMouseLeave: this._closeNestedMenu}, 
         React.createElement(MenuItem, {index: this.props.index, disabled: this.props.disabled, iconRightClassName: "muidocs-icon-custom-arrow-drop-right", onClick: this._onParentItemClick}, 
           this.props.text
         ), 
@@ -2855,24 +3019,36 @@ var NestedMenuItem = React.createClass({displayName: "NestedMenuItem",
   },
 
   _positionNestedMenu: function() {
-    var el = this.getDOMNode(),
-      nestedMenu = this.refs.nestedMenu.getDOMNode();
+    var el = React.findDOMNode(this),
+      nestedMenu = React.findDOMNode(this.refs.nestedMenu);
 
     nestedMenu.style.left = el.offsetWidth + 'px';
   },
+  
+  _openNestedMenu: function() {
+    if (!this.props.disabled) this.setState({ open: true });
+  },
+  
+  _closeNestedMenu: function() {
+    this.setState({ open: false });
+  },
+  
+  _toggleNestedMenu: function() {
+    if (!this.props.disabled) this.setState({ open: !this.state.open });
+  },
 
   _onParentItemClick: function() {
-    if (!this.props.disabled) this.setState({ open: !this.state.open });
+    this._toggleNestedMenu();
   },
 
   _onMenuItemClick: function(e, index, menuItem) {
     if (this.props.onItemClick) this.props.onItemClick(e, index, menuItem);
-    this.setState({ open: false });
+    this._closeNestedMenu();
   },
   
   _onMenuItemTap: function(e, index, menuItem) {
     if (this.props.onItemTap) this.props.onItemTap(e, index, menuItem);
-    this.setState({ open: false });
+    this._closeNestedMenu();
   }
 
 });
@@ -2911,9 +3087,9 @@ var Menu = React.createClass({displayName: "Menu",
   },
 
   componentDidMount: function() {
-    var el = this.getDOMNode();
+    var el = React.findDOMNode(this);
 
-    //Set the menu with
+    //Set the menu width
     this._setKeyWidth(el);
 
     //Save the initial menu height for later
@@ -3044,8 +3220,8 @@ var Menu = React.createClass({displayName: "Menu",
     var el;
 
     if (this.props.hideable) {
-      el = this.getDOMNode();
-      var innerContainer = this.refs.paperContainer.getInnerContainer().getDOMNode();
+      el = React.findDOMNode(this);
+      var innerContainer = React.findDOMNode(this.refs.paperContainer.getInnerContainer());
       
       if (this.props.visible) {
 
@@ -3095,7 +3271,7 @@ var Menu = React.createClass({displayName: "Menu",
 
 module.exports = Menu;
 
-},{"../mixins/classable":32,"../mixins/click-awayable":33,"../paper":37,"../utils/css-event":64,"../utils/dom":66,"../utils/key-line":69,"./link-menu-item":28,"./menu-item":29,"./subheader-menu-item":31,"react":248}],31:[function(require,module,exports){
+},{"../mixins/classable":32,"../mixins/click-awayable":33,"../paper":36,"../utils/css-event":63,"../utils/dom":65,"../utils/key-line":68,"./link-menu-item":28,"./menu-item":29,"./subheader-menu-item":31,"react":248}],31:[function(require,module,exports){
 var React = require('react');
 
 var SubheaderMenuItem = React.createClass({displayName: "SubheaderMenuItem",
@@ -3124,11 +3300,17 @@ module.exports = {
     className: React.PropTypes.string
   },
 
+  getDefaultProps: function(){
+    return {
+      className: ''
+    }
+  },
+
   getClasses: function(initialClasses, additionalClassObj) {
     var classString = '';
 
     //Initialize the classString with the classNames that were passed in
-    if (this.props.className) classString += ' ' + this.props.className;
+    if (this.props.className.length) classString += ' ' + this.props.className;
 
     //Add in initial classes
     if (typeof initialClasses === 'object') {
@@ -3159,6 +3341,7 @@ module.exports = {
 }
 
 },{"classnames":70,"react":248}],33:[function(require,module,exports){
+var React = require('react');
 var Events = require('../utils/events');
 var Dom = require('../utils/dom');
 
@@ -3175,12 +3358,13 @@ module.exports = {
   },
 
   _checkClickAway: function(e) {
-    var el = this.getDOMNode();
+    var el = React.findDOMNode(this);
 
     // Check if the target is inside the current component
     if (this.isMounted() && 
       e.target != el &&
-      !Dom.isDescendant(el, e.target)) {
+      !Dom.isDescendant(el, e.target) &&
+      document.documentElement.contains(e.target)) {
       if (this.componentClickAway) this.componentClickAway();
     }
   },
@@ -3195,15 +3379,7 @@ module.exports = {
 
 };
 
-},{"../utils/dom":66,"../utils/events":67}],34:[function(require,module,exports){
-module.exports = {
-
-  getDomId: function() {
-  	return 'dom_id' + this._reactInternalInstance._rootNodeID.replace(/\./g, '_');
-  }
-  
-}
-},{}],35:[function(require,module,exports){
+},{"../utils/dom":65,"../utils/events":66,"react":248}],34:[function(require,module,exports){
 var Events = require('../utils/events');
 
 module.exports = {
@@ -3227,7 +3403,7 @@ module.exports = {
   }
   
 }
-},{"../utils/events":67}],36:[function(require,module,exports){
+},{"../utils/events":66}],35:[function(require,module,exports){
 var React = require('react'),
   Classable = require('./mixins/classable');
 
@@ -3286,7 +3462,7 @@ var Overlay = React.createClass({displayName: "Overlay",
 });
 
 module.exports = Overlay;
-},{"./mixins/classable":32,"react":248}],37:[function(require,module,exports){
+},{"./mixins/classable":32,"react":248}],36:[function(require,module,exports){
 var React = require('react'),
   Classable = require('./mixins/classable');
 
@@ -3346,7 +3522,7 @@ var Paper = React.createClass({displayName: "Paper",
 
 module.exports = Paper;
 
-},{"./mixins/classable":32,"react":248}],38:[function(require,module,exports){
+},{"./mixins/classable":32,"react":248}],37:[function(require,module,exports){
 (function (process){
 var React = require('react');
 var Paper = require('./paper');
@@ -3429,8 +3605,8 @@ var RadioButtonGroup = React.createClass({displayName: "RadioButtonGroup",
   _updateRadioButtons: function(newSelection) {
     if (this.state.numberCheckedRadioButtons == 0) {
       this.setState({selected: newSelection});
-    } else if (process.NODE_ENV !== 'production') {
-      var message = "Cannot select a different radio button while another radio button " + 
+    } else if (process.env.NODE_ENV !== 'production') {
+      var message = "Cannot select a different radio button while another radio button " +
                     "has the 'checked' property set to true.";
       console.error(message);
     }
@@ -3462,7 +3638,7 @@ var RadioButtonGroup = React.createClass({displayName: "RadioButtonGroup",
 module.exports = RadioButtonGroup;
 
 }).call(this,require('_process'))
-},{"./enhanced-switch":19,"./mixins/classable":32,"./paper":37,"./radio-button":39,"_process":1,"react":248}],39:[function(require,module,exports){
+},{"./enhanced-switch":19,"./mixins/classable":32,"./paper":36,"./radio-button":38,"_process":1,"react":248}],38:[function(require,module,exports){
 var React = require('react');
 var Classable = require('./mixins/classable');
 var EnhancedSwitch = require('./enhanced-switch');
@@ -3529,7 +3705,7 @@ var RadioButton = React.createClass({displayName: "RadioButton",
 
 module.exports = RadioButton;
 
-},{"./enhanced-switch":19,"./mixins/classable":32,"./svg-icons/toggle-radio-button-off":53,"./svg-icons/toggle-radio-button-on":54,"react":248}],40:[function(require,module,exports){
+},{"./enhanced-switch":19,"./mixins/classable":32,"./svg-icons/toggle-radio-button-off":52,"./svg-icons/toggle-radio-button-on":53,"react":248}],39:[function(require,module,exports){
 var React = require('react');
 var Classable = require('./mixins/classable');
 var EnhancedButton = require('./enhanced-button');
@@ -3632,7 +3808,7 @@ var RaisedButton = React.createClass({displayName: "RaisedButton",
 });
 
 module.exports = RaisedButton;
-},{"./enhanced-button":18,"./mixins/classable":32,"./paper":37,"react":248}],41:[function(require,module,exports){
+},{"./enhanced-button":18,"./mixins/classable":32,"./paper":36,"react":248}],40:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 
@@ -3668,7 +3844,7 @@ var RippleCircle = React.createClass({displayName: "RippleCircle",
 });
 
 module.exports = RippleCircle;
-},{"../mixins/classable":32,"react":248}],42:[function(require,module,exports){
+},{"../mixins/classable":32,"react":248}],41:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 
@@ -3697,7 +3873,7 @@ var FocusRipple = React.createClass({displayName: "FocusRipple",
   },
 
   _setRippleSize: function() {
-    var el = this.getDOMNode();
+    var el = React.findDOMNode(this);
     var height = el.offsetHeight;
     var width = el.offsetWidth;
     var size = Math.max(height, width);
@@ -3709,7 +3885,8 @@ var FocusRipple = React.createClass({displayName: "FocusRipple",
 });
 
 module.exports = FocusRipple;
-},{"../mixins/classable":32,"react":248}],43:[function(require,module,exports){
+
+},{"../mixins/classable":32,"react":248}],42:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 var Dom = require('../utils/dom');
@@ -3730,7 +3907,8 @@ var TouchRipple = React.createClass({displayName: "TouchRipple",
         key: 0,
         started: false,
         ending: false
-      }]
+      }],
+      touchInProgress: false
     };
   },
 
@@ -3817,15 +3995,15 @@ var TouchRipple = React.createClass({displayName: "TouchRipple",
 
   _handleMouseDown: function(e) {
     //only listen to left clicks
-    if (e.button === 0) this.start(e);
+    if (e.button === 0 && !this.state.touchInProgress) this.start(e);
   },
 
   _handleMouseUp: function(e) {
-    this.end();
+    if (!this.state.touchInProgress) this.end();
   },
 
   _handleMouseOut: function(e) {
-    this.end();
+    if (!this.state.touchInProgress) this.end();
   },
 
   _handleTouchStart: function(e) {
@@ -3833,17 +4011,25 @@ var TouchRipple = React.createClass({displayName: "TouchRipple",
   },
 
   _handleTouchEnd: function(e) {
+    this.setState({ touchInProgress: true });
+    setTimeout(function () {
+      if (this.isMounted()) {
+        this.setState({ touchInProgress: false });
+      }
+    }.bind(this), 100);
+
     this.end();
   },
 
   _getRippleStyle: function(e) {
     var style = {};
-    var el = this.getDOMNode();
+    var el = React.findDOMNode(this);
     var elHeight = el.offsetHeight;
     var elWidth = el.offsetWidth;
     var offset = Dom.offset(el);
-    var pageX = e.pageX == undefined ? e.nativeEvent.pageX : e.pageX;
-    var pageY = e.pageY == undefined ? e.nativeEvent.pageY : e.pageY;
+    var isTouchEvent = e.touches && e.touches.length;
+    var pageX = isTouchEvent ? e.touches[0].pageX : e.pageX;
+    var pageY = isTouchEvent ? e.touches[0].pageY : e.pageY;
     var pointerX = pageX - offset.left;
     var pointerY = pageY - offset.top;
     var topLeftDiag = this._calcDiag(pointerX, pointerY);
@@ -3885,7 +4071,7 @@ var TouchRipple = React.createClass({displayName: "TouchRipple",
 
 module.exports = TouchRipple;
 
-},{"../mixins/classable":32,"../utils/dom":66,"./circle":41,"react":248}],44:[function(require,module,exports){
+},{"../mixins/classable":32,"../utils/dom":65,"./circle":40,"react":248}],43:[function(require,module,exports){
 var React = require('react'),
     Paper = require('./paper'),
     Classable = require('./mixins/classable'),
@@ -4019,7 +4205,7 @@ var Slider = React.createClass({displayName: "Slider",
     // let draggable handle the slider
     if (this.state.dragging || this.props.disabled) return;
     var value = this.state.value;
-    var node = this.refs.track.getDOMNode();
+    var node = React.findDOMNode(this.refs.track);
     var boundingClientRect = node.getBoundingClientRect();
     var offset = e.clientX - boundingClientRect.left;
     this._updateWithChangeEvent(e, offset / node.clientWidth);
@@ -4045,7 +4231,7 @@ var Slider = React.createClass({displayName: "Slider",
   },
 
   _dragX: function(e, pos) {
-    var max = this.refs.track.getDOMNode().clientWidth;
+    var max = React.findDOMNode(this.refs.track).clientWidth;
     if (pos < 0) pos = 0; else if (pos > max) pos = max;
     this._updateWithChangeEvent(e, pos / max);
   },
@@ -4065,7 +4251,7 @@ var Slider = React.createClass({displayName: "Slider",
 
 module.exports = Slider;
 
-},{"./mixins/classable":32,"./paper":37,"react":248,"react-draggable2":71}],45:[function(require,module,exports){
+},{"./mixins/classable":32,"./paper":36,"react":248,"react-draggable2":71}],44:[function(require,module,exports){
 var React = require('react');
 var CssEvent = require('./utils/css-event');
 var Classable = require('./mixins/classable');
@@ -4099,7 +4285,7 @@ var Snackbar = React.createClass({displayName: "Snackbar",
     if (prevState.open != this.state.open) {
       if (this.state.open) {
         //Only Bind clickaway after transition finishes
-        CssEvent.onTransitionEnd(this.getDOMNode(), function() {
+        CssEvent.onTransitionEnd(React.findDOMNode(this), function() {
           this._bindClickAway();
         }.bind(this));
       } else {
@@ -4142,7 +4328,8 @@ var Snackbar = React.createClass({displayName: "Snackbar",
 });
 
 module.exports = Snackbar;
-},{"./flat-button":21,"./mixins/classable":32,"./mixins/click-awayable":33,"./utils/css-event":64,"react":248}],46:[function(require,module,exports){
+
+},{"./flat-button":21,"./mixins/classable":32,"./mixins/click-awayable":33,"./utils/css-event":63,"react":248}],45:[function(require,module,exports){
 var React = require('react');
 var SvgIcon = require('./svg-icon');
 
@@ -4159,7 +4346,7 @@ var DropDownArrow = React.createClass({displayName: "DropDownArrow",
 });
 
 module.exports = DropDownArrow;
-},{"./svg-icon":50,"react":248}],47:[function(require,module,exports){
+},{"./svg-icon":49,"react":248}],46:[function(require,module,exports){
 var React = require('react');
 var SvgIcon = require('./svg-icon');
 
@@ -4176,7 +4363,7 @@ var NavigationChevronLeft = React.createClass({displayName: "NavigationChevronLe
 });
 
 module.exports = NavigationChevronLeft;
-},{"./svg-icon":50,"react":248}],48:[function(require,module,exports){
+},{"./svg-icon":49,"react":248}],47:[function(require,module,exports){
 var React = require('react');
 var SvgIcon = require('./svg-icon');
 
@@ -4195,7 +4382,7 @@ var NavigationChevronLeft = React.createClass({displayName: "NavigationChevronLe
 module.exports = NavigationChevronLeft;
 
 
-},{"./svg-icon":50,"react":248}],49:[function(require,module,exports){
+},{"./svg-icon":49,"react":248}],48:[function(require,module,exports){
 var React = require('react');
 var SvgIcon = require('./svg-icon');
 
@@ -4212,7 +4399,7 @@ var NavigationMenu = React.createClass({displayName: "NavigationMenu",
 });
 
 module.exports = NavigationMenu;
-},{"./svg-icon":50,"react":248}],50:[function(require,module,exports){
+},{"./svg-icon":49,"react":248}],49:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 
@@ -4236,7 +4423,7 @@ var SvgIcon = React.createClass({displayName: "SvgIcon",
 });
 
 module.exports = SvgIcon;
-},{"../mixins/classable":32,"react":248}],51:[function(require,module,exports){
+},{"../mixins/classable":32,"react":248}],50:[function(require,module,exports){
 var React = require('react');
 var SvgIcon = require('./svg-icon');
 
@@ -4253,7 +4440,7 @@ var ToggleCheckBoxChecked = React.createClass({displayName: "ToggleCheckBoxCheck
 });
 
 module.exports = ToggleCheckBoxChecked;
-},{"./svg-icon":50,"react":248}],52:[function(require,module,exports){
+},{"./svg-icon":49,"react":248}],51:[function(require,module,exports){
 var React = require('react');
 var SvgIcon = require('./svg-icon');
 
@@ -4270,7 +4457,7 @@ var ToggleCheckBoxOutlineBlank = React.createClass({displayName: "ToggleCheckBox
 });
 
 module.exports = ToggleCheckBoxOutlineBlank;
-},{"./svg-icon":50,"react":248}],53:[function(require,module,exports){
+},{"./svg-icon":49,"react":248}],52:[function(require,module,exports){
 var React = require('react');
 var SvgIcon = require('./svg-icon');
 
@@ -4287,7 +4474,7 @@ var RadioButtonOff = React.createClass({displayName: "RadioButtonOff",
 });
 
 module.exports = RadioButtonOff;
-},{"./svg-icon":50,"react":248}],54:[function(require,module,exports){
+},{"./svg-icon":49,"react":248}],53:[function(require,module,exports){
 var React = require('react');
 var SvgIcon = require('./svg-icon');
 
@@ -4304,7 +4491,7 @@ var RadioButtonOn = React.createClass({displayName: "RadioButtonOn",
 });
 
 module.exports = RadioButtonOn;
-},{"./svg-icon":50,"react":248}],55:[function(require,module,exports){
+},{"./svg-icon":49,"react":248}],54:[function(require,module,exports){
 var React = require('react');
 var Classable = require('../mixins/classable');
 var TabTemplate = require('./tabTemplate');
@@ -4343,7 +4530,7 @@ var Tab = React.createClass({displayName: "Tab",
 });
 
 module.exports = Tab;
-},{"../mixins/classable":32,"./tabTemplate":56,"react":248}],56:[function(require,module,exports){
+},{"../mixins/classable":32,"./tabTemplate":55,"react":248}],55:[function(require,module,exports){
 var React = require('react');
 
 var TabTemplate = React.createClass({displayName: "TabTemplate",
@@ -4359,7 +4546,7 @@ var TabTemplate = React.createClass({displayName: "TabTemplate",
 });
 
 module.exports = TabTemplate;
-},{"react":248}],57:[function(require,module,exports){
+},{"react":248}],56:[function(require,module,exports){
 var React = require('react/addons');
 var Tab = require('./tab');
 var TabTemplate = require('./tabTemplate');
@@ -4386,7 +4573,7 @@ var Tabs = React.createClass({displayName: "Tabs",
   getEvenWidth: function(){
     return (
       parseInt(window
-        .getComputedStyle(this.getDOMNode())
+        .getComputedStyle(React.findDOMNode(this))
         .getPropertyValue('width'), 10)
     );
   },
@@ -4457,16 +4644,16 @@ var Tabs = React.createClass({displayName: "Tabs",
 
 module.exports = Tabs;
 
-},{"../ink-bar":25,"./tab":55,"./tabTemplate":56,"react/addons":76}],58:[function(require,module,exports){
+},{"../ink-bar":25,"./tab":54,"./tabTemplate":55,"react/addons":76}],57:[function(require,module,exports){
 (function (process){
 var React = require('react');
 var Classable = require('./mixins/classable');
-var DomIdable = require('./mixins/dom-idable');
+var UniqueId = require('./utils/unique-id');
 var EnhancedTextarea = require('./enhanced-textarea');
 
 var TextField = React.createClass({displayName: "TextField",
 
-  mixins: [Classable, DomIdable],
+  mixins: [Classable],
 
   propTypes: {
     errorText: React.PropTypes.string,
@@ -4539,7 +4726,7 @@ var TextField = React.createClass({displayName: "TextField",
       'mui-is-multiLine': this.props.multiLine
     });
 
-    var inputId = this.props.id || this.getDomId();
+    var inputId = this.props.id || UniqueId.generate();
 
     var errorTextElement = this.state.errorText ? (
       React.createElement("div", {className: "mui-text-field-error"}, this.state.errorText)
@@ -4619,7 +4806,7 @@ var TextField = React.createClass({displayName: "TextField",
   },
 
   setErrorText: function(newErrorText) {
-    if (process.NODE_ENV !== 'production' && this.props.hasOwnProperty('errorText')) {
+    if (process.env.NODE_ENV !== 'production' && this.props.hasOwnProperty('errorText')) {
       console.error('Cannot call TextField.setErrorText when errorText is defined as a property.');
     } else if (this.isMounted()) {
       this.setState({errorText: newErrorText});
@@ -4627,7 +4814,7 @@ var TextField = React.createClass({displayName: "TextField",
   },
 
   setValue: function(newValue) {
-    if (process.NODE_ENV !== 'production' && this._isControlled()) {
+    if (process.env.NODE_ENV !== 'production' && this._isControlled()) {
       console.error('Cannot call TextField.setValue when value or valueLink is defined as a property.');
     } else if (this.isMounted()) {
       this._getInputNode().value = newValue;
@@ -4636,8 +4823,8 @@ var TextField = React.createClass({displayName: "TextField",
   },
 
   _getInputNode: function() {
-    return this.props.multiLine ? 
-      this.refs.input.getInputNode() : this.refs.input.getDOMNode();
+    return this.props.multiLine ?
+      this.refs.input.getInputNode() : React.findDOMNode(this.refs.input);
   },
 
   _handleInputBlur: function(e) {
@@ -4663,7 +4850,7 @@ var TextField = React.createClass({displayName: "TextField",
   _handleTextAreaHeightChange: function(e, height) {
     var newHeight = height + 24;
     if (this.props.floatingLabelText) newHeight += 24;
-    this.getDOMNode().style.height = newHeight + 'px';
+    React.findDOMNode(this).style.height = newHeight + 'px';
   },
 
   _isControlled: function() {
@@ -4676,7 +4863,7 @@ var TextField = React.createClass({displayName: "TextField",
 module.exports = TextField;
 
 }).call(this,require('_process'))
-},{"./enhanced-textarea":20,"./mixins/classable":32,"./mixins/dom-idable":34,"_process":1,"react":248}],59:[function(require,module,exports){
+},{"./enhanced-textarea":20,"./mixins/classable":32,"./utils/unique-id":69,"_process":1,"react":248}],58:[function(require,module,exports){
 var React = require('react');
 var Classable = require('./mixins/classable');
 var Paper = require('./paper');
@@ -4740,7 +4927,7 @@ var Toggle = React.createClass({displayName: "Toggle",
 
 module.exports = Toggle;
 
-},{"./enhanced-switch":19,"./mixins/classable":32,"./paper":37,"react":248}],60:[function(require,module,exports){
+},{"./enhanced-switch":19,"./mixins/classable":32,"./paper":36,"react":248}],59:[function(require,module,exports){
 var Classable = require('./mixins/classable');
 var React = require('react');
 
@@ -4770,7 +4957,7 @@ var ToolbarGroup = React.createClass({displayName: "ToolbarGroup",
 
 module.exports = ToolbarGroup;
 
-},{"./mixins/classable":32,"react":248}],61:[function(require,module,exports){
+},{"./mixins/classable":32,"react":248}],60:[function(require,module,exports){
 var Classable = require('./mixins/classable');
 var React = require('react');
 
@@ -4793,7 +4980,7 @@ var Toolbar = React.createClass({displayName: "Toolbar",
 
 module.exports = Toolbar;
 
-},{"./mixins/classable":32,"react":248}],62:[function(require,module,exports){
+},{"./mixins/classable":32,"react":248}],61:[function(require,module,exports){
 var React = require('react');
 var Classable = require('./mixins/classable');
 
@@ -4835,8 +5022,8 @@ var Tooltip = React.createClass({displayName: "Tooltip",
   },
 
   _setRippleSize: function() {
-    var ripple = this.refs.ripple.getDOMNode();
-    var tooltipSize = this.getDOMNode().offsetWidth;
+    var ripple = React.findDOMNode(this.refs.ripple);
+    var tooltipSize = React.findDOMNode(this).offsetWidth;
     var ripplePadding = this.props.touch ? 45 : 20;
     var rippleSize = tooltipSize + ripplePadding + 'px';
 
@@ -4852,7 +5039,8 @@ var Tooltip = React.createClass({displayName: "Tooltip",
 });
 
 module.exports = Tooltip;
-},{"./mixins/classable":32,"react":248}],63:[function(require,module,exports){
+
+},{"./mixins/classable":32,"react":248}],62:[function(require,module,exports){
 var React = require('react/addons');
 var ReactCSSTransitionGroup = React.addons.CSSTransitionGroup;
 var Classable = require('../mixins/classable');
@@ -4901,7 +5089,7 @@ var SlideIn = React.createClass({displayName: "SlideIn",
 });
 
 module.exports = SlideIn;
-},{"../mixins/classable":32,"react/addons":76}],64:[function(require,module,exports){
+},{"../mixins/classable":32,"react/addons":76}],63:[function(require,module,exports){
 var Events = require('./events');
 
 module.exports = {
@@ -4954,7 +5142,7 @@ module.exports = {
   }
 
 };
-},{"./events":67}],65:[function(require,module,exports){
+},{"./events":66}],64:[function(require,module,exports){
 module.exports = {
 
   addDays: function(d, days) {
@@ -5087,7 +5275,7 @@ module.exports = {
   }
 
 }
-},{}],66:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 module.exports = {
 
   isDescendant: function(parent, child) {
@@ -5159,7 +5347,7 @@ module.exports = {
   }
   
 }
-},{}],67:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 module.exports = {
 
   once: function(el, type, callback) {
@@ -5194,7 +5382,7 @@ module.exports = {
     }
   }
 };
-},{}],68:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 module.exports = {
   DOWN: 40,
   ESC: 27,
@@ -5205,7 +5393,7 @@ module.exports = {
   TAB: 9,
   UP: 38
 }
-},{}],69:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 module.exports = {
 
   Desktop: {
@@ -5219,6 +5407,15 @@ module.exports = {
     return Math.ceil(dim / this.Desktop.INCREMENT) * this.Desktop.INCREMENT;
   }
 }
+
+},{}],69:[function(require,module,exports){
+var index = 0;
+
+module.exports = {
+  generate: function() {
+    return "mui-id-" + (index++);
+  }
+};
 
 },{}],70:[function(require,module,exports){
 /*!
@@ -6349,6 +6546,15 @@ var eventTypes = {
   }
 };
 
+var now = function() {
+  if (Date.now) {
+    return Date.now();
+  } else {
+    // IE8 support: http://stackoverflow.com/questions/9430357/please-explain-why-and-how-new-date-works-as-workaround-for-date-now-in
+    return +new Date;
+  }
+}
+
 var TapEventPlugin = {
 
   tapMoveThreshold: tapMoveThreshold,
@@ -6372,9 +6578,9 @@ var TapEventPlugin = {
       nativeEvent) {
 
     if (isTouch(topLevelType)) {
-      lastTouchEvent = nativeEvent.timeStamp;
+      lastTouchEvent = now();
     } else {
-      if (lastTouchEvent && (nativeEvent.timeStamp - lastTouchEvent) < ignoreMouseThreshold) {
+      if (lastTouchEvent && (now() - lastTouchEvent) < ignoreMouseThreshold) {
         return null;
       }
     }
@@ -6405,6 +6611,7 @@ var TapEventPlugin = {
 };
 
 module.exports = TapEventPlugin;
+
 },{"./TouchEventUtils":74,"react/lib/EventConstants":91,"react/lib/EventPluginUtils":95,"react/lib/EventPropagators":96,"react/lib/SyntheticUIEvent":190,"react/lib/ViewportMetrics":193,"react/lib/keyOf":233}],74:[function(require,module,exports){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -10924,7 +11131,7 @@ if ("production" !== process.env.NODE_ENV) {
       if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ === 'undefined') {
         console.debug(
           'Download the React DevTools for a better development experience: ' +
-          'http://fb.me/react-devtools'
+          'https://fb.me/react-devtools'
         );
       }
     }
@@ -10951,7 +11158,7 @@ if ("production" !== process.env.NODE_ENV) {
       if (!expectedFeatures[i]) {
         console.error(
           'One or more ES5 shim/shams expected by React are not available: ' +
-          'http://fb.me/react-warning-polyfills'
+          'https://fb.me/react-warning-polyfills'
         );
         break;
       }
@@ -10959,7 +11166,7 @@ if ("production" !== process.env.NODE_ENV) {
   }
 }
 
-React.version = '0.13.2';
+React.version = '0.13.3';
 
 module.exports = React;
 
@@ -12684,7 +12891,7 @@ var ReactClass = {
         ("production" !== process.env.NODE_ENV ? warning(
           this instanceof Constructor,
           'Something is calling a React component directly. Use a factory or ' +
-          'JSX instead. See: http://fb.me/react-legacyfactory'
+          'JSX instead. See: https://fb.me/react-legacyfactory'
         ) : null);
       }
 
@@ -12896,20 +13103,38 @@ ReactComponent.prototype.forceUpdate = function(callback) {
  */
 if ("production" !== process.env.NODE_ENV) {
   var deprecatedAPIs = {
-    getDOMNode: 'getDOMNode',
-    isMounted: 'isMounted',
-    replaceProps: 'replaceProps',
-    replaceState: 'replaceState',
-    setProps: 'setProps'
+    getDOMNode: [
+      'getDOMNode',
+      'Use React.findDOMNode(component) instead.'
+    ],
+    isMounted: [
+      'isMounted',
+      'Instead, make sure to clean up subscriptions and pending requests in ' +
+      'componentWillUnmount to prevent memory leaks.'
+    ],
+    replaceProps: [
+      'replaceProps',
+      'Instead, call React.render again at the top level.'
+    ],
+    replaceState: [
+      'replaceState',
+      'Refactor your code to use setState instead (see ' +
+      'https://github.com/facebook/react/issues/3236).'
+    ],
+    setProps: [
+      'setProps',
+      'Instead, call React.render again at the top level.'
+    ]
   };
-  var defineDeprecationWarning = function(methodName, displayName) {
+  var defineDeprecationWarning = function(methodName, info) {
     try {
       Object.defineProperty(ReactComponent.prototype, methodName, {
         get: function() {
           ("production" !== process.env.NODE_ENV ? warning(
             false,
-            '%s(...) is deprecated in plain JavaScript React classes.',
-            displayName
+            '%s(...) is deprecated in plain JavaScript React classes. %s',
+            info[0],
+            info[1]
           ) : null);
           return undefined;
         }
@@ -13307,6 +13532,7 @@ var ReactCompositeComponentMixin = {
     this._pendingReplaceState = false;
     this._pendingForceUpdate = false;
 
+    var childContext;
     var renderedElement;
 
     var previouslyMounting = ReactLifeCycle.currentlyMountingInstance;
@@ -13321,7 +13547,8 @@ var ReactCompositeComponentMixin = {
         }
       }
 
-      renderedElement = this._renderValidatedComponent();
+      childContext = this._getValidatedChildContext(context);
+      renderedElement = this._renderValidatedComponent(childContext);
     } finally {
       ReactLifeCycle.currentlyMountingInstance = previouslyMounting;
     }
@@ -13335,7 +13562,7 @@ var ReactCompositeComponentMixin = {
       this._renderedComponent,
       rootID,
       transaction,
-      this._processChildContext(context)
+      this._mergeChildContext(context, childContext)
     );
     if (inst.componentDidMount) {
       transaction.getReactMountReady().enqueue(inst.componentDidMount, inst);
@@ -13465,7 +13692,7 @@ var ReactCompositeComponentMixin = {
    * @return {object}
    * @private
    */
-  _processChildContext: function(currentContext) {
+  _getValidatedChildContext: function(currentContext) {
     var inst = this._instance;
     var childContext = inst.getChildContext && inst.getChildContext();
     if (childContext) {
@@ -13490,6 +13717,13 @@ var ReactCompositeComponentMixin = {
           name
         ) : invariant(name in inst.constructor.childContextTypes));
       }
+      return childContext;
+    }
+    return null;
+  },
+
+  _mergeChildContext: function(currentContext, childContext) {
+    if (childContext) {
       return assign({}, currentContext, childContext);
     }
     return currentContext;
@@ -13749,6 +13983,10 @@ var ReactCompositeComponentMixin = {
       return inst.state;
     }
 
+    if (replace && queue.length === 1) {
+      return queue[0];
+    }
+
     var nextState = assign({}, replace ? queue[0] : inst.state);
     for (var i = replace ? 1 : 0; i < queue.length; i++) {
       var partial = queue[i];
@@ -13818,13 +14056,14 @@ var ReactCompositeComponentMixin = {
   _updateRenderedComponent: function(transaction, context) {
     var prevComponentInstance = this._renderedComponent;
     var prevRenderedElement = prevComponentInstance._currentElement;
-    var nextRenderedElement = this._renderValidatedComponent();
+    var childContext = this._getValidatedChildContext();
+    var nextRenderedElement = this._renderValidatedComponent(childContext);
     if (shouldUpdateReactComponent(prevRenderedElement, nextRenderedElement)) {
       ReactReconciler.receiveComponent(
         prevComponentInstance,
         nextRenderedElement,
         transaction,
-        this._processChildContext(context)
+        this._mergeChildContext(context, childContext)
       );
     } else {
       // These two IDs are actually the same! But nothing should rely on that.
@@ -13840,7 +14079,7 @@ var ReactCompositeComponentMixin = {
         this._renderedComponent,
         thisID,
         transaction,
-        this._processChildContext(context)
+        this._mergeChildContext(context, childContext)
       );
       this._replaceNodeWithMarkupByID(prevComponentID, nextMarkup);
     }
@@ -13878,11 +14117,12 @@ var ReactCompositeComponentMixin = {
   /**
    * @private
    */
-  _renderValidatedComponent: function() {
+  _renderValidatedComponent: function(childContext) {
     var renderedComponent;
     var previousContext = ReactContext.current;
-    ReactContext.current = this._processChildContext(
-      this._currentElement._context
+    ReactContext.current = this._mergeChildContext(
+      this._currentElement._context,
+      childContext
     );
     ReactCurrentOwner.current = this;
     try {
@@ -14251,6 +14491,7 @@ var ReactDOM = mapObject({
 
   // SVG
   circle: 'circle',
+  clipPath: 'clipPath',
   defs: 'defs',
   ellipse: 'ellipse',
   g: 'g',
@@ -14402,11 +14643,13 @@ function assertValidProps(props) {
       'Can only set one of `children` or `props.dangerouslySetInnerHTML`.'
     ) : invariant(props.children == null));
     ("production" !== process.env.NODE_ENV ? invariant(
-      props.dangerouslySetInnerHTML.__html != null,
+      typeof props.dangerouslySetInnerHTML === 'object' &&
+      '__html' in props.dangerouslySetInnerHTML,
       '`props.dangerouslySetInnerHTML` must be in the form `{__html: ...}`. ' +
-      'Please visit http://fb.me/react-invariant-dangerously-set-inner-html ' +
+      'Please visit https://fb.me/react-invariant-dangerously-set-inner-html ' +
       'for more information.'
-    ) : invariant(props.dangerouslySetInnerHTML.__html != null));
+    ) : invariant(typeof props.dangerouslySetInnerHTML === 'object' &&
+    '__html' in props.dangerouslySetInnerHTML));
   }
   if ("production" !== process.env.NODE_ENV) {
     ("production" !== process.env.NODE_ENV ? warning(
@@ -17212,7 +17455,7 @@ function warnAndMonitorForKeyUse(message, element, parentType) {
 
   ("production" !== process.env.NODE_ENV ? warning(
     false,
-    message + '%s%s See http://fb.me/react-warning-keys for more information.',
+    message + '%s%s See https://fb.me/react-warning-keys for more information.',
     parentOrOwnerAddendum,
     childOwnerAddendum
   ) : null);
@@ -21748,6 +21991,7 @@ var ReactUpdates = require("./ReactUpdates");
 var SyntheticEvent = require("./SyntheticEvent");
 
 var assign = require("./Object.assign");
+var emptyObject = require("./emptyObject");
 
 var topLevelTypes = EventConstants.topLevelTypes;
 
@@ -22089,6 +22333,9 @@ assign(
 );
 
 ReactShallowRenderer.prototype.render = function(element, context) {
+  if (!context) {
+    context = emptyObject;
+  }
   var transaction = ReactUpdates.ReactReconcileTransaction.getPooled();
   this._render(element, transaction, context);
   ReactUpdates.ReactReconcileTransaction.release(transaction);
@@ -22229,7 +22476,7 @@ for (eventType in topLevelTypes) {
 
 module.exports = ReactTestUtils;
 
-},{"./EventConstants":91,"./EventPluginHub":93,"./EventPropagators":96,"./Object.assign":104,"./React":106,"./ReactBrowserEventEmitter":108,"./ReactCompositeComponent":118,"./ReactElement":138,"./ReactEmptyComponent":140,"./ReactInstanceHandles":147,"./ReactInstanceMap":148,"./ReactMount":152,"./ReactUpdates":175,"./SyntheticEvent":184}],171:[function(require,module,exports){
+},{"./EventConstants":91,"./EventPluginHub":93,"./EventPropagators":96,"./Object.assign":104,"./React":106,"./ReactBrowserEventEmitter":108,"./ReactCompositeComponent":118,"./ReactElement":138,"./ReactEmptyComponent":140,"./ReactInstanceHandles":147,"./ReactInstanceMap":148,"./ReactMount":152,"./ReactUpdates":175,"./SyntheticEvent":184,"./emptyObject":206}],171:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
  * All rights reserved.
@@ -23334,6 +23581,7 @@ var MUST_USE_ATTRIBUTE = DOMProperty.injection.MUST_USE_ATTRIBUTE;
 
 var SVGDOMPropertyConfig = {
   Properties: {
+    clipPath: MUST_USE_ATTRIBUTE,
     cx: MUST_USE_ATTRIBUTE,
     cy: MUST_USE_ATTRIBUTE,
     d: MUST_USE_ATTRIBUTE,
@@ -23379,6 +23627,7 @@ var SVGDOMPropertyConfig = {
     y: MUST_USE_ATTRIBUTE
   },
   DOMAttributeNames: {
+    clipPath: 'clip-path',
     fillOpacity: 'fill-opacity',
     fontFamily: 'font-family',
     fontSize: 'font-size',
@@ -26306,6 +26555,7 @@ var shouldWrap = {
   // Force wrapping for SVG elements because if they get created inside a <div>,
   // they will be initialized in the wrong namespace (and will not display).
   'circle': true,
+  'clipPath': true,
   'defs': true,
   'ellipse': true,
   'g': true,
@@ -26348,6 +26598,7 @@ var markupWrap = {
   'th': trWrap,
 
   'circle': svgWrap,
+  'clipPath': svgWrap,
   'defs': svgWrap,
   'ellipse': svgWrap,
   'g': svgWrap,
@@ -28232,7 +28483,7 @@ var DnDArea = React.createClass({displayName: "DnDArea",
       React.createElement("div", {className: "dndarea-wrap"}, 
         React.createElement("span", null, this.props.title), 
         React.createElement(Paper, {className: classArea, 
-               zDepth: zDepth, onDragOver: this.doDragOver, onDragLeave: this.doDragLeave, onDrop: this.doDrop}, 
+               zDepth: zDepth, circle: true, onDragOver: this.doDragOver, onDragLeave: this.doDragLeave, onDrop: this.doDrop}, 
           React.createElement("p", {className: "dndarea-content"}, this.props.children)
         )
       )
@@ -28358,8 +28609,8 @@ module.exports = DnDInput;
         React.createElement("div", null, 
           React.createElement(DnDInput, {ref: "target1", hintText: "Path 1", floatingLabelText: "Target 1"}), 
           React.createElement(DnDInput, {ref: "target2", hintText: "Path 2", floatingLabelText: "Target 2"}), 
-          React.createElement(DnDArea, {ref: "area1", title: "Target 1", receiveDrop: this.onReceiveDrop1}, "Drop Here!"), 
-          React.createElement(DnDArea, {ref: "area2", title: "Target 2", receiveDrop: this.onReceiveDrop2}, "Drop Here!"), 
+          React.createElement(DnDArea, {ref: "area1", title: "Target 1", receiveDrop: this.onReceiveDrop1}, "DROP HERE!"), 
+          React.createElement(DnDArea, {ref: "area2", title: "Target 2", receiveDrop: this.onReceiveDrop2}, "DROP HERE!"), 
           React.createElement("div", {id: "controller"}, 
             React.createElement(RaisedButton, {className: "compare-button", onClick: this.doClick, label: "Compare"})
           ), 
