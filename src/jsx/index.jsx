@@ -11,6 +11,8 @@
   var Snackbar = mui.Snackbar;
   var Dialog = mui.Dialog;
 
+  var Loading = require('react-loading');
+
   var DnDInput = require('./dndinput.jsx');
   var DnDArea = require('./dndarea.jsx');
 
@@ -59,8 +61,11 @@
         return;
       }
 
+      this.refs.loadingDlg.show();
+
       var self = this;
       exec('/usr/local/bin/meld ' + path1 + ' ' + path2, function(error, stdout, stderr) {
+        self.refs.loadingDlg.dismiss();
         if (error !== null) {
           self.setState({ dialogMessage: error.message + '(' + error.code + ')' });
           self.refs.alertDlg.show();
@@ -80,6 +85,10 @@
           <Snackbar ref='snakbar' message={this.state.snackMessage} />
           <Dialog ref='alertDlg' title='Meld Launcher' actions={[{ text: 'OK'}]} modal={true}>
             {this.state.dialogMessage}
+          </Dialog>
+          <Dialog ref="loadingDlg" title="Meld Launcher" modal={true}>
+            <p>Running Meld ...</p>
+            <Loading type='cubes' />
           </Dialog>
         </div>
       );

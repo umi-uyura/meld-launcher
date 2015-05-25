@@ -27,6 +27,7 @@
     "material-ui": "^0.7.5",
     "nw": "^0.12.2",
     "react": "^0.13.3",
+    "react-loading": "0.0.6",
     "react-tap-event-plugin": "^0.1.7"
   },
   "devDependencies": {
