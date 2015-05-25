@@ -6,16 +6,20 @@
     <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,500' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" href="build/bundle.css" />
     <script>
-     var gui = require('nw.gui');
-    </script>
-    <script>
      var path = './';
      var fs = require('fs');
 
-     fs.watch(path, { recursive: true }, function() {
+     fs.watch(path, {recursive: true}, function() {
        if (location)
          location.reload();
      });
+    </script>
+    <script>
+     var gui = require('nw.gui');
+     var win = gui.Window.get();
+     var menubar = new gui.Menu({type: 'menubar'});
+     menubar.createMacBuiltin('Meld Launcher', {hideEdit: true,  hideWindow: true});
+     win.menu = menubar;
     </script>
   </head>
   <body>
