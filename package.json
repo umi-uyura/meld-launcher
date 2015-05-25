@@ -9,7 +9,7 @@
     "reactify": "browserify -t reactify src/jsx/index.jsx -o build/bundle.js",
     "watchify": "watchify -t reactify src/jsx/index.jsx -o build/bundle.js -v",
     "lessc": "lessc src/style/bundle.less build/bundle.css",
-    "package": "nwbuild -p osx64 -v 0.12.0 .",
+    "package": "nwbuild -p osx64 -v 0.12.2 .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
