@@ -49152,7 +49152,7 @@ module.exports = DnDInput;
           React.createElement(DnDArea, {ref: "area1", title: "Target 1", receiveDrop: this.onReceiveDrop1}, "DROP HERE!"), 
           React.createElement(DnDArea, {ref: "area2", title: "Target 2", receiveDrop: this.onReceiveDrop2}, "DROP HERE!"), 
           React.createElement("div", {id: "controller"}, 
-            React.createElement(RaisedButton, {ref: "compareButton", className: "compare-button", onClick: this.doClick, label: "Compare"})
+            React.createElement(RaisedButton, {className: "compare-button", onClick: this.doClick, label: "Compare"})
           ), 
           React.createElement(Snackbar, {ref: "snakbar", message: this.state.snackMessage}), 
           React.createElement(Dialog, {ref: "alertDlg", title: "Meld Launcher", actions: [{ text: 'OK'}], modal: true}, 
