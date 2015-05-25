@@ -64,8 +64,6 @@
         if (error !== null) {
           self.setState({ dialogMessage: error.message + '(' + error.code + ')' });
           self.refs.alertDlg.show();
-        } else {
-          window.process.exit();
         }
       });
     },
