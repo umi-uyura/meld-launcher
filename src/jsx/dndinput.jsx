@@ -2,6 +2,7 @@
 
 var React = require('react');
 var mui = require('material-ui');
+var Colors = mui.Styles.Colors;
 var TextField = mui.TextField;
 
 var DnDInput = React.createClass({
@@ -28,8 +29,30 @@ var DnDInput = React.createClass({
     this.setState({ path: path });
   },
   render: function() {
+    var styles = {
+      textField: {
+        width: '90%'
+      },
+      floatingLabel: {
+        color: Colors.orangeA700
+      },
+      underline: {
+        borderColor: Colors.orangeA200
+      },
+      underlineFocused: {
+        borderColor: Colors.orangeA700
+      }
+    };
+
     return (
-        <TextField hintText={this.props.hintText} floatingLabelText={this.props.floatingLabelText} value={this.state.path} onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} readOnly />
+      <TextField style={styles.textField}
+                 hintText={this.props.hintText}
+                 floatingLabelText={this.props.floatingLabelText}
+                 floatingLabelStyle={styles.floatingLabel}
+                 underlineStyle={styles.underline}
+                 underlineFocusStyle={styles.underlineFocused}
+                 value={this.state.path}
+                 onDragOver={this.doDragOver} onDragLeave={this.doDragLeave} onDrop={this.doDrop} readOnly />
     );
   }
 });

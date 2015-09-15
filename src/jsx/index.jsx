@@ -7,6 +7,8 @@
   injectTapEventPlugin();
 
   var mui = require('material-ui');
+  var ThemeManager = new mui.Styles.ThemeManager();
+  var Colors = mui.Styles.Colors;
   var RaisedButton = mui.RaisedButton;
   var Snackbar = mui.Snackbar;
   var Dialog = mui.Dialog;
@@ -21,6 +23,14 @@
       return {
         snackMessage: '',
         dialogMessage: ''
+      };
+    },
+    childContextTypes: {
+      muiTheme: React.PropTypes.object
+    },
+    getChildContext: function() {
+      return {
+        muiTheme: ThemeManager.getCurrentTheme()
       };
     },
     onReceiveDrop1: function(e) {
@@ -73,14 +83,29 @@
       });
     },
     render: function() {
+      var styles = {
+        app: {
+          textAlign: 'center',
+          margin: '0px 10px 10px 10px'
+        },
+        controller: {
+          marginTop: '60px'
+        },
+        compareButton: {
+          width: '90%'
+        }
+      };
+
       return (
-        <div>
+        <div id="app-div" style={styles.app}>
           <DnDInput ref='target1' hintText='Path 1' floatingLabelText='Target 1' />
           <DnDInput ref='target2' hintText='Path 2' floatingLabelText='Target 2' />
           <DnDArea ref='area1' title="Target 1" receiveDrop={this.onReceiveDrop1}>DROP HERE!</DnDArea>
           <DnDArea ref='area2' title="Target 2" receiveDrop={this.onReceiveDrop2}>DROP HERE!</DnDArea>
-          <div id="controller">
-            <RaisedButton className="compare-button" onClick={this.doClick} label='Compare' />
+          <div id="controller" style={styles.controller}>
+            <RaisedButton className="compare-button"
+                          backgroundColor={Colors.indigoA100}
+                          style={styles.compareButton} onClick={this.doClick} label='Compare' />
           </div>
           <Snackbar ref='snakbar' message={this.state.snackMessage} />
           <Dialog ref='alertDlg' title='Meld Launcher' actions={[{ text: 'OK'}]} modal={true}>

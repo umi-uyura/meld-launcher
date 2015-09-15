@@ -1,15 +1,19 @@
 {
   "name": "meld-launcher",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Select target by drag & drop and launch Meld",
-  "main": "index.html",
+  "main": "app/index.html",
   "scripts": {
     "start": "nw",
-    "browserify": "browserify build/index.js -o build/bundle.js",
-    "reactify": "browserify -t reactify src/jsx/index.jsx -o build/bundle.js",
-    "watchify": "watchify -t reactify src/jsx/index.jsx -o build/bundle.js -v",
-    "lessc": "lessc src/style/bundle.less build/bundle.css",
-    "package": "nwbuild -p osx64 -v 0.12.2 .",
+    "babelify": "browserify -t babelify src/jsx/index.jsx -o app/js/bundle.js",
+    "watchify": "watchify -t babelify src/jsx/index.jsx -o app/js/bundle.js -v",
+    "dist:mkdir": "mkdir -p build && mkdir -p dist",
+    "dist:copy": "cp app/index.html build && cp -R app/js build && cp -R app/css build",
+    "dist:config": "cat package.json package-dist.json | json --deep-merge > build/package.json",
+    "dist:build": "nwbuild -p osx64 -v 0.12.3 -o dist build",
+    "dist:res": "cp -f resources/icon/nw.icns dist/meld-launcher/osx64/meld-launcher.app/Contents/Resources/",
+    "dist": "npm run babelify && npm run dist:mkdir && npm run dist:copy && npm run dist:config && npm run dist:build && npm run dist:res",
+    "clean": "rm -rf build/* && rm -rf dist/*",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -22,23 +26,20 @@
   "author": "Umi Uyura",
   "license": "MIT",
   "dependencies": {
-    "classnames": "^2.1.1",
-    "less": "^2.5.1",
-    "material-ui": "^0.7.5",
-    "nw": "^0.12.2",
+    "babelify": "^6.3.0",
+    "browserify": "^11.1.0",
+    "json": "^9.0.3",
+    "material-ui": "^0.11.0",
+    "nw": "^0.12.3",
+    "nw-builder": "^2.0.2",
     "react": "^0.13.3",
-    "react-loading": "0.0.6",
-    "react-tap-event-plugin": "^0.1.7"
-  },
-  "devDependencies": {
-    "browserify": "^10.2.1",
-    "node-webkit-builder": "^1.0.11",
-    "reactify": "^1.1.1",
-    "watchify": "^3.2.1"
+    "react-loading": "0.0.7",
+    "react-tap-event-plugin": "^0.1.7",
+    "watchify": "^3.4.0"
   },
   "window": {
     "title": "Meld Launcher",
-    "toolbar": false,
+    "toolbar": true,
     "width": 600,
     "height": 480
   }
