@@ -1,6 +1,6 @@
 {
   "name": "meld-launcher",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Select target by drag & drop and launch Meld",
   "main": "app/index.html",
   "scripts": {
